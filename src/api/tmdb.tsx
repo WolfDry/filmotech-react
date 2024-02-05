@@ -7,8 +7,7 @@ export const get = async (page: number = 1) => {
     }
   };
 
-  fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`, options)
-    .then(response => response.json())
-    .then(response => {return response })
-    .catch(err => console.error(err));
-}
+  // Retournez la promesse
+  return fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`, options)
+    .then(response => response.json());
+};
