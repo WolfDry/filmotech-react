@@ -63,12 +63,18 @@ export default function Home() {
 
   return (
     <>
-      <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {movies && movies.map((movie : Imovie) => (
-          <CardMovie key={movie.id} movie={movie}/>
-        ))}
-      </ul>
-      <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage}/>
+      {movies.length < 1 ? <p className="text-gray-50">Chargement...</p> :
+        <>
+        <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {movies && movies.map((movie: Imovie) => (
+            <CardMovie key={movie.id} movie={movie}/>
+          ))}
+        </ul>
+        <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage}/>
+        </>
+      }
+
+
     </>
 
   )

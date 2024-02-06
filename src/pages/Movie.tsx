@@ -194,24 +194,17 @@ export default function MovieOnly() {
                   <div className="prose prose-sm mt-4 text-gray-500">
                     <ul role="list">
                       {movie.genres.map((genre) => (
-                        <li key={genre.id}>{genre.name}</li>
+                        <span key={genre} className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
+                       {genre.name}</span>
                       ))}
                     </ul>
                   </div>
                 </div>
 
-                <div className="mt-10 border-t border-gray-200 pt-10">
-                  <h3 className="text-sm font-medium text-gray-900">License</h3>
-                  <p className="mt-4 text-sm text-gray-500">
-                    {license.summary}{' '}
-                    <a href={license.href} className="font-medium text-indigo-600 hover:text-indigo-500">
-                      Read full license
-                    </a>
-                  </p>
-                </div>
+
 
                 <div className="mt-10 border-t border-gray-200 pt-10">
-                  <h3 className="text-sm font-medium text-gray-900">Share</h3>
+                  <h3 className="text-sm font-medium text-gray-900">Partage</h3>
                   <ul role="list" className="mt-4 flex items-center space-x-6">
                     <li>
                       <a href="#"
