@@ -29,7 +29,7 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
+  min-width: 200px;
   min-height: 100vh;
 }
 
@@ -73,4 +73,10 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.img-movie{
+  max-height: 700px;
+  border-radius: 10px;
+  object-fit: contain;
 }
