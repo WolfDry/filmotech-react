@@ -1,5 +1,5 @@
 export type Cinema = {
-    id: String
+    id: Number
     name: String,
     pc: String,
     city: String,
