@@ -1,5 +1,3 @@
-import { MongoClient } from 'mongodb'
-
 async function fetchData() {
     try {
         const response = await fetch('http://localhost:3000/api/data');
@@ -16,8 +14,6 @@ async function fetchData() {
 fetchData();
 
 function Back() {
-
-
 
     return (
         <form>
