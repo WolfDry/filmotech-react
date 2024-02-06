@@ -145,7 +145,8 @@ export default function MovieOnly() {
                 <div className="flex flex-col-reverse">
                   <div className="mt-4">
                     <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{movie.title}</h1>
-                    <div className="text-xl font-bold tracking-tight text-gray-500 space-x-3.5 sm:text-2xl"> {movie.tagline}</div>
+                    <div
+                      className="text-xl font-bold tracking-tight text-gray-500 space-x-3.5 sm:text-2xl"> {movie.tagline}</div>
                     <p className="mt-2 text-sm text-gray-500">
                       Sortie le
                       <time> {formateDate(movie.release_date)}</time>
@@ -195,23 +196,47 @@ export default function MovieOnly() {
                   <div className="prose prose-sm mt-4 text-gray-500">
                     <ul role="list">
                       {movie.genres.map((genre) => (
-                        <span key={genre.id} className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
+                        <span key={genre.id}
+                              className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
                        {genre.name}</span>
                       ))}
                     </ul>
                   </div>
                 </div>
+                <div className="mt-10 border-t border-gray-200 pt-10">
+                  <h3 className="text-lg font-medium text-gray-900">Production </h3>
+                  <div className="prose prose-sm mt-4 text-gray-500">
+                    <div role="list" className="block ">
+                      {movie.production_companies.length < 1 ? <p> Aucune information sur la production</p> :
+                        <>
+                        {movie.production_companies.map((prod) => (
 
+                            <div className="flex justify-center">
+                              {prod.logo_path == null ? <p> {prod.name}</p> :
+                                <img src={`https://image.tmdb.org/t/p/original${prod.logo_path}`} alt={prod.logo_path}
+                                     className=" h-12 object-cover object-center my-2"/>}
+
+                            </div>
+                          )
+                          )
+                        }
+                        </>
+                    }
+
+                    </div>
+                  </div>
+                </div>
 
 
               </div>
 
-            </div>  <Review />
+            </div>
+            <Review movie={movie}/>
 
           </div>
         </div>
       }
-        </>
+    </>
 
-        )
-      }
+  )
+}
