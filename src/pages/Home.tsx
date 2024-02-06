@@ -1,11 +1,24 @@
 import CardMovie from '../Components/CardMovie.tsx'
 import Pagination from '../Components/Pagination.tsx'
-import { useState, useEffect } from 'react'
+import {useState, useEffect} from 'react'
 import {get} from "../api/tmdb.tsx";
-let totalPages : number;
+import {Movie} from "../interface/Movie.tsx";
 
-export default function Example() {
-  const [movies, setMovies] = useState([]);
+let totalPages: number;
+
+export default function Home() {
+  interface Imovie {
+    id: number
+    title: string,
+    poster_path: string,
+    vote_average: number,
+    release_date: string,
+    genre_names: string[],
+    external_id: number
+    movie: Movie
+  }
+
+  const [movies, setMovies] = useState<Imovie[]>([]);
   const [currentPage, setPage] = useState(1);
 
   useEffect(() => {
@@ -13,11 +26,15 @@ export default function Example() {
     const pageParam = urlParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
     setPage(page);
-    get(page).then(data => {
-      setMovies(data)
-      totalPages = data.total_pages
+    get(page).then( data  => {
+      if (data) {
+        setMovies(data)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        totalPages = data.total_pages
+      }
     }).catch(err => console.error(err));
-  }, [movies,currentPage]);
+  }, [movies, currentPage]);
 
 
   function changePage(page: number) {
@@ -33,18 +50,25 @@ export default function Example() {
     setPage(page);
 
     get(page).then((data) => {
-      setMovies(data.results);
-      totalPages = data.total_pages;
+      if (data) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        setMovies(data.results);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        totalPages = data.total_pages;
+      }
     }).catch(err => console.error(err));
   }
+
   return (
     <>
       <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {movies && movies.map((movie) => (
-          <CardMovie key={movie.id} movie={movie} />
+        {movies && movies.map((movie : Imovie) => (
+          <CardMovie key={movie.id} movie={movie}/>
         ))}
       </ul>
-      <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage} />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage}/>
     </>
 
   )
