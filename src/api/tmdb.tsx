@@ -17,7 +17,6 @@ export const get = async (page: number = 1) => {
     const genreMap = new Map(genreData.genres.map(genre => [genre.id, genre.name]));
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    console.log(movieData.results);
     const Mov = await Promise.all(movieData.results.map(async movie => {
       try {
         const extIdResponse = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/external_ids`, options);
