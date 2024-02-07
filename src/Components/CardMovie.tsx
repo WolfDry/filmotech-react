@@ -9,11 +9,12 @@ const CardMovie = ({ movie } : Imovie) => {
   return (
     <li className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow">
       <div className="flex flex-1 flex-col">
-        <img
+        {movie.poster_path === null ? <div className="img-movie"></div> : <img
           className="mx-auto w-full h-92 flex-shrink-0 rounded-t-lg object-cover"
           src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
           alt=""
-        />
+        />}
+
         <div className="mt-2 mb-3">
           <div className="flex justify-between ">
             <div className="">
@@ -42,7 +43,7 @@ const CardMovie = ({ movie } : Imovie) => {
           <div className="flex w-0 flex-1">
             <Link
               to={`/film/${movie.external_id}`}
-              className="relative -mr-px inline-flex w-0 flex-1 hover:text-gray-400 transition items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+              className="relative -mr-px inline-flex w-0 flex-1 hover:text-yellow-400 transition items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
             >
               En savoir plus
             </Link>

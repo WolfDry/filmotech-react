@@ -1,6 +1,6 @@
 import {StarIcon} from '@heroicons/react/20/solid'
 import {Movie} from "../interface/Movie.tsx";
-import CardMovie from "./CardMovie.tsx";
+import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import {useState} from "react";
 
 interface Imovie {
@@ -119,6 +119,13 @@ function classNames(...classes) {
 const Review = ({movie}: Imovie) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [starsClicked, setStarsClicked] = useState(0);
+
+  const [formCommentIsOpen, setFormCommentIsOpen] = useState(false);
+  const [formName, setFormName] = useState('');
+  const [formFirstName, setFormFirstName] = useState('');
+  const [formComment, setFormComment] = useState('');
+  const [formRating, setFormRating] = useState(0);
+
   const totalStars = 5;
   return (
     <div className="bg-white">
@@ -167,81 +174,91 @@ const Review = ({movie}: Imovie) => {
             <p className="mt-1 text-sm text-gray-600">
               Partagez vos avis et critiques sur ce film
             </p>
-
-            <a
-              href="#"
-              className="mt-6 inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
+            <div className={`${formCommentIsOpen ? '' : 'hidden'}`}>
+              <form action="#" method="POST">
+                <div className="my-2 flex justify-center">
+                  {[...Array(totalStars)].map((_, index) => (
+                    <div
+                      key={index}
+                      onMouseEnter={() => setHoveredIndex(index)}
+                      onMouseLeave={() => setHoveredIndex(null)}
+                    >
+                      <StarIcon onClick={() => {
+                        setStarsClicked(index + 1)
+                        console.log(starsClicked)
+                      }}
+                                className={`text-${starsClicked >= index + 1 ? 'yellow-400' : hoveredIndex! >= index ? 'yellow-300' : 'gray-200'} hover:text-yellow-300 cursor-pointer h-10 w-10`}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <div className="relative">
+                    <label
+                      htmlFor="name"
+                      className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
+                    >
+                      Nom
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
+                      placeholder="Smith"
+                    />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="relative">
+                    <label
+                      htmlFor="name"
+                      className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
+                    >
+                      Prénom
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
+                      placeholder="Jane"
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <div className="relative">
+                      <label
+                        htmlFor="name"
+                        className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
+                      >
+                        Commentaire
+                      </label>
+                      <textarea
+                        rows={4}
+                        name="comment"
+                        id="comment"
+                        className="block px-2 w-full rounded-md bg-white border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
+                        defaultValue={''}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="flex w-full justify-center mt-2 text-center  gap-x-2 rounded-md bg-yellow-300 px-3.5 py-2.5 text-sm font-semibold text-gray-800 shadow-sm hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:border-yellow-300 focus-visible:outline-yellow-300"
+                  >
+                    Envoyer
+                    <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true"/>
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div onClick={() => setFormCommentIsOpen(!formCommentIsOpen)}
+                 className="mt-6 inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
             >
-              Ecrire un commentaire
-            </a>
-          </div>
-          <div className="my-2 flex justify-center">
-            {[...Array(totalStars)].map((_, index) => (
-              <div
-                key={index}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              >
-                <StarIcon onClick={() => {
-                  setStarsClicked(index + 1)
-                  console.log(starsClicked)
-                }}
-                          className={`text-${starsClicked >= index + 1 ? 'yellow-400' : hoveredIndex >= index ? 'yellow-300' : 'gray-200'} hover:text-yellow-300 cursor-pointer h-10 w-10`}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <div className="relative">
-              <label
-                htmlFor="name"
-                className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
-              >
-                Nom
-              </label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
-                placeholder="Smith"
-              />
+              {!formCommentIsOpen ? <p>Ecrire un commentaire</p> : <p>Annuler</p>}
             </div>
           </div>
-          <div className="mt-4">
-            <div className="relative">
-              <label
-                htmlFor="name"
-                className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
-              >
-                Prénom
-              </label>
-              <input
-                type="text"
-                name="name"
-                id="name"
-                className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
-                placeholder="Jane"
-              />
-            </div>
-            <div className="mt-4">
-              <div className="relative">
-                <label
-                  htmlFor="name"
-                  className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
-                >
-                  Commentaire
-                </label>
-                <textarea
-                  rows={4}
-                  name="comment"
-                  id="comment"
-                  className="block px-2 w-full rounded-md bg-white border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
-                  defaultValue={''}
-                />
-              </div>
-            </div>
-          </div>
+
 
         </div>
 

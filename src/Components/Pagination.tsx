@@ -34,7 +34,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onChan
   };
 
   return (
-    <nav className="flex mt-3 w-full items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+    <nav className="flex mt-3 w-full items-center justify-between  px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">
         <div
           onClick={() => onChangePage(currentPage - 1)}
@@ -51,8 +51,8 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onChan
             key={number}
             className={`inline-flex cursor-pointer items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium ${
               number === currentPage
-                ? 'text-gray-200 hover:border-yellow-300 hover:text-yellow-300'
-                : 'text-gray-500 hover:border-gray-300 hover:text-yellow-300'
+                ? 'text-yellow-200 hover:border-yellow-300 hover:text-yellow-300'
+                : 'text-gray-500 hover:border-yellow-300 hover:text-yellow-300'
             }`}
           >
             {number}

@@ -34,31 +34,20 @@ export default function Home() {
         totalPages = data.total_pages
       }
     }).catch(err => console.error(err));
-  }, [movies, currentPage]);
+  }, []);
 
 
   function changePage(page: number) {
     if (page < 1 || page > totalPages) {
       return;
     }
-
-    // Update URL with the new page parameter
-    const url = new URL(window.location.href);
-    url.searchParams.set('page', page.toString());
-    window.history.pushState({}, '', url.toString());
-
-    setPage(page);
-
-    get(page).then((data) => {
-      if (data) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        setMovies(data.results);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        totalPages = data.total_pages;
-      }
-    }).catch(err => console.error(err));
+    else {
+      const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
+      const queryParams = new URLSearchParams(window.location.search);
+      queryParams.set('page', page.toString());
+      const newUrl = url + '?' + queryParams.toString();
+      window.location.href = newUrl;
+    }
   }
 
   return (
@@ -67,8 +56,8 @@ export default function Home() {
         {movies.length < 1 ? <p className="text-gray-50">Chargement...</p> :
             <>
               <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {movies && movies.map((movie: Imovie) => (
-                  <CardMovie key={movie.id} movie={movie}/>
+                {movies && movies.map((movie: Imovie,index) => (
+                  <CardMovie key={index} movie={movie}/>
                 ))}
               </ul>
               <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage}/>

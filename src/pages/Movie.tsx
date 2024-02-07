@@ -109,7 +109,6 @@ export default function MovieOnly() {
 
   useEffect(() => {
     getMovieById(id!).then(data => {
-      console.log(data);
       setMovie(data);
     }).catch(err => console.error(err));
 
@@ -211,7 +210,7 @@ export default function MovieOnly() {
                         <>
                         {movie.production_companies.map((prod) => (
 
-                            <div className="flex justify-center">
+                            <div key={prod.name} className="flex justify-center">
                               {prod.logo_path == null ? <p> {prod.name}</p> :
                                 <img src={`https://image.tmdb.org/t/p/original${prod.logo_path}`} alt={prod.logo_path}
                                      className=" h-12 object-cover object-center my-2"/>}
