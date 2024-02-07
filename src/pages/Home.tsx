@@ -3,6 +3,8 @@ import Pagination from '../Components/Pagination.tsx'
 import {useState, useEffect} from 'react'
 import {get} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
+import {Production} from "../interface/Production.tsx";
+import {Genre} from "../interface/Genre.tsx";
 
 let totalPages: number;
 
@@ -10,11 +12,16 @@ export default function Home() {
   interface Imovie {
     id: number
     title: string,
+    overview: string,
+    vote_count: number,
+    genres: Genre[],
     poster_path: string,
     vote_average: number,
     release_date: string,
     genre_names: string[],
-    external_id: number
+    external_id: number,
+    production_companies: Production[],
+    tagline: string,
     movie: Movie
   }
 

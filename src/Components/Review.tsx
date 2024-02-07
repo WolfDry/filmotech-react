@@ -112,19 +112,16 @@ const reviews = {
   ],
 }
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
 
 const Review = ({movie}: Imovie) => {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [starsClicked, setStarsClicked] = useState(0);
 
   const [formCommentIsOpen, setFormCommentIsOpen] = useState(false);
-  const [formName, setFormName] = useState('');
-  const [formFirstName, setFormFirstName] = useState('');
-  const [formComment, setFormComment] = useState('');
-  const [formRating, setFormRating] = useState(0);
+  // const [formName, setFormName] = useState('');
+  // const [formFirstName, setFormFirstName] = useState('');
+  // const [formComment, setFormComment] = useState('');
+  // const [formRating, setFormRating] = useState(0);
 
   const totalStars = 5;
   return (
@@ -145,10 +142,7 @@ const Review = ({movie}: Imovie) => {
                   return (
                     <div key={index} className="relative">
                       <StarIcon
-                        className={classNames(
-                          'h-5 w-5 flex-shrink-0',
-                          isFilled ? 'text-yellow-400' : 'text-gray-300'
-                        )}
+                        className={'h-5 w-5 flex-shrink-0' + (isFilled ? ' text-yellow-400' : ' text-gray-300')}
                         aria-hidden="true"
                       />
                       {isHalfFilled && (
@@ -276,10 +270,7 @@ const Review = ({movie}: Imovie) => {
                         {[0, 1, 2, 3, 4].map((rating) => (
                           <StarIcon
                             key={rating}
-                            className={classNames(
-                              review.rating > rating ? 'text-yellow-400' : 'text-gray-300',
-                              'h-5 w-5 flex-shrink-0'
-                            )}
+                            className={'h-5 w-5 flex-shrink-0' + (review.rating > rating ? 'text-yellow-400' : 'text-gray-300')}
                             aria-hidden="true"
                           />
                         ))}
