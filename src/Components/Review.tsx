@@ -185,7 +185,6 @@ const Review = ({movie}: Imovie) => {
                     >
                       <StarIcon onClick={() => {
                         setStarsClicked(index + 1)
-                        console.log(starsClicked)
                       }}
                                 className={`text-${starsClicked >= index + 1 ? 'yellow-400' : hoveredIndex! >= index ? 'yellow-300' : 'gray-200'} hover:text-yellow-300 cursor-pointer h-10 w-10`}
                       />

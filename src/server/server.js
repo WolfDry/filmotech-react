@@ -46,7 +46,6 @@ app.post('/api/insert', async (req, res) => {
         const db = client.db();
         const collection = db.collection('cinema');
         const data = req.body; // Assuming data is sent as JSON in the request body
-        console.log(req.body)
         const result = await collection.insertMany(data);
         res.json({ message: `${result.insertedCount} documents inserted` });
     } catch (error) {
