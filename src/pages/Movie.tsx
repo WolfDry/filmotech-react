@@ -103,9 +103,7 @@ export default function MovieOnly() {
                         return (
                           <div key={index} className="relative">
                             <StarIcon
-                              className={'h-5 w-5 flex-shrink-0' +(
-                                isFilled ? 'text-yellow-400' : 'text-gray-300'
-                              )}
+                              className={'h-5 w-5 flex-shrink-0' + (isFilled ? ' text-yellow-400' : ' text-gray-300')}
                               aria-hidden="true"
                             />
                             {isHalfFilled && (
