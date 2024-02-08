@@ -4,7 +4,7 @@ import {useParams} from 'react-router-dom';
 import {getMovieById} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
 import Review from "../Components/Review.tsx";
-
+import noImage from '/public/no-image.jpg';
 const reviews = {
   average: 4,
   featured: [
@@ -40,7 +40,7 @@ export default function MovieOnly() {
 
   const [movie, setMovie] = useState<Movie | null>(null);
 
-  const { id } = useParams();
+  const {id} = useParams();
 
   useEffect(() => {
     getMovieById(id!).then(data => {
@@ -73,8 +73,13 @@ export default function MovieOnly() {
               {/* Product image */}
               <div className="lg:col-span-4 lg:row-end-1">
                 <div className=" flex justify-center">
-                  <img src={`https://image.tmdb.org/t/p/original${movie.poster_path}`} alt={movie.title}
-                       className=" img-movie object-cover object-center"/>
+                  {movie.poster_path == null ?
+                    <img src={noImage} alt={movie.title}
+                         className=" img-movie object-cover object-center"/> :
+                    <img src={`https://image.tmdb.org/t/p/original${movie.poster_path}`} alt={movie.title}
+                         className=" img-movie object-cover object-center"/>
+                  }
+
                 </div>
               </div>
 
@@ -86,10 +91,13 @@ export default function MovieOnly() {
                     <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">{movie.title}</h1>
                     <div
                       className="text-xl font-bold tracking-tight text-gray-500 space-x-3.5 sm:text-2xl"> {movie.tagline}</div>
-                    <p className="mt-2 text-sm text-gray-500">
-                      Sortie le
-                      <time> {formateDate(movie.release_date)}</time>
-                    </p>
+                    {movie.release_date == '' ?
+                      <p className="mt-2 text-sm text-gray-500"> Aucune information sur la date de sortie</p> :
+                      <p className="mt-2 text-sm text-gray-500">
+                        Sortie le
+                        <time> {formateDate(movie.release_date)}</time>
+                      </p>
+                    }
                   </div>
 
                   <div>
@@ -123,47 +131,53 @@ export default function MovieOnly() {
                     <p className="sr-only">{reviews.average} out of 5 stars</p>
                   </div>
                 </div>
-
-                <p className="mt-6 text-gray-500">{movie.overview}</p>
+                {movie.overview == '' ?
+                  <p className=" text-gray-900"> Aucune information sur le film</p> :
+                  <p className="mt-6 text-gray-500">{movie.overview}</p>
+                }
 
 
                 <div className="mt-10 border-t border-gray-200 pt-10">
                   <h3 className="text-lg font-medium text-gray-900">Genre</h3>
-                  <div className="prose prose-sm mt-4 text-gray-500">
-                    <ul role="list">
-                      {movie.genres.map((genre) => (
-                        <span key={genre.id}
-                              className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
+                  {movie.genres.length < 1 ? <p className="text-gray-600"> Aucune information sur le genre</p> :
+                    <div className="prose prose-sm mt-4 text-gray-500">
+                      <ul role="list">
+                        {movie.genres.map((genre) => (
+                          <span key={genre.id}
+                                className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
                        {genre.name}</span>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                <div className="mt-10 border-t border-gray-200 pt-10">
-                  <h3 className="text-lg font-medium text-gray-900">Production </h3>
-                  <div className="prose prose-sm mt-4 text-gray-500">
-                    <div role="list" className="block ">
-                      {movie.production_companies.length < 1 ? <p> Aucune information sur la production</p> :
-                        <>
-                        {movie.production_companies.map((prod) => (
-
-                            <div key={prod.name} className="flex justify-center">
-                              {prod.logo_path == null ? <p> {prod.name}</p> :
-                                <img src={`https://image.tmdb.org/t/p/original${prod.logo_path}`} alt={prod.logo_path}
-                                     className=" h-12 object-cover object-center my-2"/>}
-
-                            </div>
-                          )
-                          )
-                        }
-                        </>
-                    }
-
+                        ))}
+                      </ul>
                     </div>
-                  </div>
+                  }
                 </div>
+
               </div>
 
+
+            </div>
+            <div className="mt-10 border-t border-gray-200 pt-10">
+              <h3 className="text-lg font-medium text-gray-900">Production </h3>
+              <div className="prose prose-sm mt-4 text-gray-500">
+                <div role="list" className="block ">
+                  {movie.production_companies.length < 1 ? <p> Aucune information sur la production</p> :
+                    <>
+                      {movie.production_companies.map((prod) => (
+
+                          <div key={prod.name} className="flex justify-center">
+                            {prod.logo_path == null ? <p> {prod.name}</p> :
+                              <img src={`https://image.tmdb.org/t/p/original${prod.logo_path}`} alt={prod.logo_path}
+                                   className=" h-12 object-cover prod-movie object-center my-2"/>}
+
+                          </div>
+                        )
+                      )
+                      }
+                    </>
+                  }
+
+                </div>
+              </div>
             </div>
             <Review movie={movie}/>
 
