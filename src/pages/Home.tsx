@@ -10,6 +10,7 @@ let totalPages: number;
 
 export default function Home() {
   interface Imovie {
+    imdb_id: string;
     id: number
     title: string,
     overview: string,
