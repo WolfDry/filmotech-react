@@ -10,7 +10,6 @@ const port = 3000;
 const uri = 'mongodb+srv://filmotech:jn2U5c4x5zNw8Knt@filmotech.roycvfe.mongodb.net/filmotech?retryWrites=true&w=majority';
 const client = new MongoClient(uri);
 const corsOptions = {
-    origin: 'http://localhost:5173',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   }
 
