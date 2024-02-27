@@ -118,10 +118,11 @@ const Review = ({movie}: Imovie) => {
   const [starsClicked, setStarsClicked] = useState(0);
 
   const [formCommentIsOpen, setFormCommentIsOpen] = useState(false);
-  // const [formName, setFormName] = useState('');
-  // const [formFirstName, setFormFirstName] = useState('');
-  // const [formComment, setFormComment] = useState('');
-  // const [formRating, setFormRating] = useState(0);
+  const [formData, setFormData] = useState({});
+
+  const updateFormData = (prop:String, newData:String) => {
+
+  }
 
   const totalStars = 5;
   return (
@@ -199,13 +200,14 @@ const Review = ({movie}: Imovie) => {
                       id="name"
                       className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                       placeholder="Smith"
+                      onChange={()=>updateFormData('name', event?.target.value)}
                     />
                   </div>
                 </div>
                 <div className="mt-4">
                   <div className="relative">
                     <label
-                      htmlFor="name"
+                      htmlFor="firstName"
                       className="absolute -top-2 left-2 inline-block bg-white px-1 text-xs font-medium text-gray-900"
                     >
                       Prénom
@@ -213,7 +215,7 @@ const Review = ({movie}: Imovie) => {
                     <input
                       type="text"
                       name="name"
-                      id="name"
+                      id="firstName"
                       className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                       placeholder="Jane"
                     />
