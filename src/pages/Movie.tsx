@@ -1,10 +1,11 @@
 import {useEffect, useState} from 'react'
-import {StarIcon} from '@heroicons/react/20/solid'
+import {StarIcon,SpeakerWaveIcon, SpeakerXMarkIcon} from '@heroicons/react/20/solid'
 import {useParams} from 'react-router-dom';
 import {getMovieById} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
 import Review from "../Components/Review.tsx";
 import noImage from '/public/no-image.jpg';
+
 const reviews = {
   average: 4,
   featured: [
@@ -38,16 +39,40 @@ const reviews = {
 
 export default function MovieOnly() {
 
+  const [onSpeak, setOnSpeak] = useState<boolean>(false);
+  const handleSpeak = (text:string) => {
+    setOnSpeak(!onSpeak);
+
+    if ('speechSynthesis' in window) {
+      const synthesis = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onend = () => {
+        setOnSpeak(false);
+      };
+      if (!onSpeak) {
+        synthesis.speak(utterance);
+      } else {
+        synthesis.cancel();
+      }
+    } else {
+      console.error('Text-to-speech is not supported in this browser.');
+    }
+  };
   const [movie, setMovie] = useState<Movie | null>(null);
 
   const {id} = useParams();
 
   useEffect(() => {
+    // const availableVoices = window.speechSynthesis.getVoices(); // Choix des voix ?
+    // if (speakingInstance) {
+    //   speakingInstance.cancel();
+    // }
     getMovieById(id!).then(data => {
       setMovie(data);
     }).catch(err => console.error(err));
 
   }, [id]);
+
 
   function formateDate(dateString: string) {
     const date = new Date(dateString);
@@ -133,7 +158,24 @@ export default function MovieOnly() {
                 </div>
                 {movie.overview == '' ?
                   <p className=" text-gray-900"> Aucune information sur le film</p> :
-                  <p className="mt-6 text-gray-500">{movie.overview}</p>
+                  <><p className="mt-6 text-gray-500">{movie.overview}</p>
+
+
+                    <div className="cursor-pointer flex justify-center pt-1"
+                         onClick={() => {
+                      handleSpeak(movie?.overview)
+                    }}>
+                      {onSpeak ?
+                        <>
+                        <SpeakerWaveIcon color={"orange"} height={35} width={35} className="border-solid transition duration-100 border-orange-300 border-[1px] p-2 rounded-full"/>
+                        </>:
+                        <>
+
+                      <SpeakerXMarkIcon color={"#252525"} height={35} width={35} className="border-solid border-[#252525] border-[1px] p-2 rounded-full"/>
+                    </>
+                      }
+                      </div>
+                  </>
                 }
 
 
