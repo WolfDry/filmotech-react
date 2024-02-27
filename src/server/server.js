@@ -33,7 +33,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors(corsOptions));
 
 // Example route to fetch data from MongoDB
-app.get('/api/data', async (req, res) => {
+app.get('/api/cinema/get', async (req, res) => {
     const db = client.db();
     const collection = db.collection('cinema');
     const data = await collection.find({}).toArray();
@@ -41,10 +41,24 @@ app.get('/api/data', async (req, res) => {
 });
 
 // Example route to fetch data from MongoDB
-app.post('/api/insert', async (req, res) => {
+app.post('/api/cinema/insert', async (req, res) => {
     try {
         const db = client.db();
         const collection = db.collection('cinema');
+        const data = req.body; // Assuming data is sent as JSON in the request body
+        const result = await collection.insertOne(data);
+        res.json({ message: `${result.insertedCount} documents inserted` });
+    } catch (error) {
+        console.error('Error inserting data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Example route to fetch data from MongoDB
+app.post('/api/comment/insert', async (req, res) => {
+    try {
+        const db = client.db();
+        const collection = db.collection('comment');
         const data = req.body; // Assuming data is sent as JSON in the request body
         const result = await collection.insertMany(data);
         res.json({ message: `${result.insertedCount} documents inserted` });

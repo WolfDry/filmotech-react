@@ -10,6 +10,7 @@ import {MagnifyingGlassIcon} from '@heroicons/react/20/solid';
 
 export default function Home() {
   interface Imovie {
+    imdb_id: string;
     id: number
     title: string,
     overview: string,

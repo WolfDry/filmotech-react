@@ -1,7 +1,7 @@
-import {StarIcon} from '@heroicons/react/20/solid'
-import {Movie} from "../interface/Movie.tsx";
+import { StarIcon } from '@heroicons/react/20/solid'
+import { Movie } from "../interface/Movie.tsx";
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
-import {useState} from "react";
+import { useState } from "react";
 
 interface Imovie {
   movie: Movie
@@ -11,11 +11,11 @@ const reviews = {
   average: 4,
   totalCount: 1624,
   counts: [
-    {rating: 5, count: 1019},
-    {rating: 4, count: 162},
-    {rating: 3, count: 97},
-    {rating: 2, count: 199},
-    {rating: 1, count: 147},
+    { rating: 5, count: 1019 },
+    { rating: 4, count: 162 },
+    { rating: 3, count: 97 },
+    { rating: 2, count: 199 },
+    { rating: 1, count: 147 },
   ],
   featured: [
     {
@@ -29,7 +29,7 @@ const reviews = {
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     },
     {
-      id: 1,
+      id: 2,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -38,7 +38,7 @@ const reviews = {
       avatarSrc:
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     }, {
-      id: 1,
+      id: 3,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -47,7 +47,7 @@ const reviews = {
       avatarSrc:
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     }, {
-      id: 1,
+      id: 4,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -57,7 +57,7 @@ const reviews = {
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     },
     {
-      id: 1,
+      id: 5,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -67,7 +67,7 @@ const reviews = {
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     },
     {
-      id: 1,
+      id: 6,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -77,7 +77,7 @@ const reviews = {
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     },
     {
-      id: 1,
+      id: 7,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -87,7 +87,7 @@ const reviews = {
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     },
     {
-      id: 1,
+      id: 8,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -97,7 +97,7 @@ const reviews = {
         'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
     },
     {
-      id: 1,
+      id: 9,
       rating: 5,
       content: `
         <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
@@ -113,15 +113,55 @@ const reviews = {
 }
 
 
-const Review = ({movie}: Imovie) => {
+const Review = ({ movie }: Imovie) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [starsClicked, setStarsClicked] = useState(0);
 
   const [formCommentIsOpen, setFormCommentIsOpen] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [comment, setComment] = useState('')
 
-  const updateFormData = (prop:String, newData:String) => {
+  const addComment = () => {
+    let data = []
 
+    if (name === '' || name === undefined || name === ' ') {
+      return
+    }
+    if (firstName === '' || firstName === undefined || firstName === ' ') {
+      return
+    }
+    if (comment === '' || comment === undefined || comment === ' ') {
+      return
+    }
+    if (starsClicked === 0 || starsClicked === undefined) {
+      return
+    }
+
+    data.push({
+      "name": name,
+      "fistName": firstName,
+      "comment": comment,
+      "rating": starsClicked,
+      "movieId": movie.id,
+      "movieImdb": movie.imdb_id
+    })
+
+    insertData(data)
+  }
+
+  async function insertData(data: Object) {
+    try { 
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      };
+      fetch('http://localhost:3000/api/comment/insert', requestOptions)
+        .then(response => response.json());
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   }
 
   const totalStars = 5;
@@ -149,10 +189,10 @@ const Review = ({movie}: Imovie) => {
                       {isHalfFilled && (
                         <div
                           className="absolute top-0 left-0 w-1/2 h-full overflow-hidden"
-                          style={{clip: 'rect(0, 1em, 1.2em, 0)'}}
+                          style={{ clip: 'rect(0, 1em, 1.2em, 0)' }}
 
                         >
-                          <StarIcon className="h-5 w-5 text-yellow-400" aria-hidden="true"/>
+                          <StarIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
                         </div>
                       )}
                     </div>
@@ -181,7 +221,7 @@ const Review = ({movie}: Imovie) => {
                       <StarIcon onClick={() => {
                         setStarsClicked(index + 1)
                       }}
-                                className={`text-${starsClicked >= index + 1 ? 'yellow-400' : hoveredIndex! >= index ? 'yellow-300' : 'gray-200'} hover:text-yellow-300 cursor-pointer h-10 w-10`}
+                        className={`text-${starsClicked >= index + 1 ? 'yellow-400' : hoveredIndex! >= index ? 'yellow-300' : 'gray-200'} hover:text-yellow-300 cursor-pointer h-10 w-10`}
                       />
                     </div>
                   ))}
@@ -200,7 +240,7 @@ const Review = ({movie}: Imovie) => {
                       id="name"
                       className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                       placeholder="Smith"
-                      onChange={()=>updateFormData('name', event?.target.value)}
+                      onChange={(e) => setName(e.target.value)}
                     />
                   </div>
                 </div>
@@ -214,10 +254,11 @@ const Review = ({movie}: Imovie) => {
                     </label>
                     <input
                       type="text"
-                      name="name"
+                      name="firstName"
                       id="firstName"
                       className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                       placeholder="Jane"
+                      onChange={(e) => setFirstName(e.target.value)}
                     />
                   </div>
                   <div className="mt-4">
@@ -234,21 +275,23 @@ const Review = ({movie}: Imovie) => {
                         id="comment"
                         className="block px-2 w-full rounded-md bg-white border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                         defaultValue={''}
+                        onChange={(e) => setComment(e.target.value)}
                       />
                     </div>
                   </div>
                   <button
                     type="button"
                     className="flex w-full justify-center mt-2 text-center  gap-x-2 rounded-md bg-yellow-300 px-3.5 py-2.5 text-sm font-semibold text-gray-800 shadow-sm hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:border-yellow-300 focus-visible:outline-yellow-300"
+                    onClick={() => { addComment() }}
                   >
                     Envoyer
-                    <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true"/>
+                    <CheckCircleIcon className="-mr-0.5 h-5 w-5" aria-hidden="true" />
                   </button>
                 </div>
               </form>
             </div>
             <div onClick={() => setFormCommentIsOpen(!formCommentIsOpen)}
-                 className="mt-6 inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
+              className="mt-6 inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
             >
               {!formCommentIsOpen ? <p>Ecrire un commentaire</p> : <p>Annuler</p>}
             </div>
@@ -265,13 +308,13 @@ const Review = ({movie}: Imovie) => {
               {reviews.featured.map((review) => (
                 <div key={review.id} className="py-12">
                   <div className="flex items-center">
-                    <img src={review.avatarSrc} alt={`${review.author}.`} className="h-12 w-12 rounded-full"/>
+                    <img src={review.avatarSrc} alt={`${review.author}.`} className="h-12 w-12 rounded-full" />
                     <div className="ml-4">
                       <h4 className="text-sm font-bold text-gray-900">{review.author}</h4>
                       <div className="mt-1 flex items-center">
-                        {[0, 1, 2, 3, 4].map((rating) => (
+                        {[0, 1, 2, 3, 4].map((rating, index) => (
                           <StarIcon
-                            key={rating}
+                            key={index}
                             className={'h-5 w-5 flex-shrink-0' + (review.rating > rating ? 'text-yellow-400' : 'text-gray-300')}
                             aria-hidden="true"
                           />
@@ -283,7 +326,7 @@ const Review = ({movie}: Imovie) => {
 
                   <div
                     className="mt-4 space-y-6 text-base italic text-gray-600"
-                    dangerouslySetInnerHTML={{__html: review.content}}
+                    dangerouslySetInnerHTML={{ __html: review.content }}
                   />
                 </div>
               ))}
