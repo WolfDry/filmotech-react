@@ -34,6 +34,12 @@ export default function NavBar() {
                       location.pathname === '/back' ? 'border-yellow-300 hover:text-yellow-300' : 'border-transparent hover:border-gray-300 hover:text-yellow-300'
                     }`}                  >
                     Ajouter un Cinéma
+                  </a><a
+                    href="/movies-around-me"
+                    className={`inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium text-white ${
+                      location.pathname === '/movies-around-me' ? 'border-yellow-300 hover:text-yellow-300' : 'border-transparent hover:border-gray-300 hover:text-yellow-300'
+                    }`}                  >
+                   Films autour de moi
                   </a>
 
                 </div>
