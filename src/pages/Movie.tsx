@@ -159,26 +159,14 @@ export default function MovieOnly() {
                 {movie.overview == '' ?
                   <p className=" text-gray-900"> Aucune information sur le film</p> :
                   <><p className="mt-6 text-gray-500">{movie.overview}</p>
-
-
-                    <div className="cursor-pointer flex justify-center pt-1"
-                         onClick={() => {
-                      handleSpeak(movie?.overview)
-                    }}>
+                    <div className=" flex justify-center pt-1">
                       {onSpeak ?
-                        <>
-                        <SpeakerWaveIcon color={"orange"} height={35} width={35} className="border-solid transition duration-100 border-orange-300 border-[1px] p-2 rounded-full"/>
-                        </>:
-                        <>
-
-                      <SpeakerXMarkIcon color={"#252525"} height={35} width={35} className="border-solid border-[#252525] border-[1px] p-2 rounded-full"/>
-                    </>
+                        <><SpeakerWaveIcon onClick={() => {handleSpeak(movie?.overview)}} color={"orange"} height={35} width={35} className="border-solid cursor-pointer transition duration-100 border-orange-500 hover:text-[#252525] hover:border-[#252525] text-orange-500 border-[1px] p-2 rounded-full"/></>:
+                        <><SpeakerXMarkIcon onClick={() => {handleSpeak(movie?.overview)}} color={"#252525"} height={35} width={35} className="border-solid hover:text-orange-500 hover:border-orange-500 transition duration-100 cursor-pointer border-[#252525] border-[1px] p-2 rounded-full"/></>
                       }
                       </div>
                   </>
                 }
-
-
                 <div className="mt-10 border-t border-gray-200 pt-10">
                   <h3 className="text-lg font-medium text-gray-900">Genre</h3>
                   {movie.genres.length < 1 ? <p className="text-gray-600"> Aucune information sur le genre</p> :
