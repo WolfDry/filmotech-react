@@ -30,7 +30,7 @@ const Reviews = ({ movie }: Imovie) => {
 
   useEffect(() => {
     getReviews()
-  }, [reviews])
+  }, [])
 
   const addComment = () => {
     let data = []

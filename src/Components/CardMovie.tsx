@@ -44,14 +44,18 @@ const CardMovie = ({ movie } : Imovie, ) => {
       </div>
       <div>
         <div className="-mt-px flex divide-x divide-gray-200">
+
           <div className="flex w-0 flex-1">
+            {movie.external_id === null ? <div className="relative -mr-px inline-flex w-0 flex-1 hover:text-yellow-400 transition items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"></div> :
             <Link
               to={`/film/${movie.external_id}`}
               className="relative -mr-px inline-flex w-0 flex-1 hover:text-yellow-400 transition items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
             >
               En savoir plus
             </Link>
+            }
           </div>
+
         </div>
       </div>
     </li>
