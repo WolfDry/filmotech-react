@@ -25,12 +25,12 @@ const Reviews = ({ movie }: Imovie) => {
   const getReviews = () => {
     fetch(`http://localhost:3000/api/comment/get/${movie.imdb_id}`)
       .then(response => response.json())
-      .then(data => setReviews(data))
+      .then(data => setReviews(data.reverse()))
   }
 
   useEffect(() => {
     getReviews()
-  }, [])
+  }, [reviews])
 
   const addComment = () => {
     let data = []
@@ -64,6 +64,11 @@ const Reviews = ({ movie }: Imovie) => {
       "movieImdb": movie.imdb_id
     })
 
+    setName('')
+    setFirstName('')
+    setComment('')
+    setStarsClicked(0)
+
     insertData(data)
   }
 
@@ -86,7 +91,7 @@ const Reviews = ({ movie }: Imovie) => {
     <div className="bg-white">
       <div
         className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:grid lg:max-w-7xl lg:grid-cols-12 lg:gap-x-8 lg:px-8 lg:py-32">
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 flex flex-col items-center">
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">Commentaires</h2>
           <div className="mt-3 flex items-center">
             <div>
@@ -95,7 +100,6 @@ const Reviews = ({ movie }: Imovie) => {
                   const rating = Math.round(movie.vote_average) / 2;
                   const isFilled = index < Math.floor(rating);
                   const isHalfFilled = !isFilled && index + 0.5 === rating;
-
                   return (
                     <div key={index} className="relative">
                       <StarIcon
@@ -159,6 +163,7 @@ const Reviews = ({ movie }: Imovie) => {
                       className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                       placeholder="Smith"
                       onChange={(e) => setName(e.target.value)}
+                      value={name}
                     />
                   </div>
                 </div>
@@ -177,6 +182,7 @@ const Reviews = ({ movie }: Imovie) => {
                       className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                       placeholder="Jane"
                       onChange={(e) => setFirstName(e.target.value)}
+                      value={firstName}
                     />
                   </div>
                   <div className="mt-4">
@@ -194,6 +200,7 @@ const Reviews = ({ movie }: Imovie) => {
                         className="block px-2 w-full rounded-md bg-white border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                         defaultValue={''}
                         onChange={(e) => setComment(e.target.value)}
+                        value={comment}
                       />
                     </div>
                   </div>
