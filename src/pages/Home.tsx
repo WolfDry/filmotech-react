@@ -1,7 +1,7 @@
 import CardMovie from '../Components/CardMovie.tsx'
 import Pagination from '../Components/Pagination.tsx'
 import {useEffect, useState} from 'react'
-import {get, getMovieByLocationAndRange, getMovieByTitl} from "../api/tmdb.tsx";
+import {get, getMovieByGenre, getMovieByLocationAndRange, getMovieByTitle} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
 import {Production} from "../interface/Production.tsx";
 import {Genre} from "../interface/Genre.tsx";
@@ -17,9 +17,12 @@ function classNames(...classes: string[]) {
 
 
 const sortOptions = [
-  { name: 'Most Popular', href: '#' },
-  { name: 'Best Rating', href: '#' },
-  { name: 'Newest', href: '#' },
+  { name: 'Popularité', value: 'popularity.desc' },
+  { name: 'Note', value: 'vote_average.desc' },
+  { name: 'Alphabetic croissant', value: 'title.asc' },
+  { name: 'Alphabetic décroissant', value: 'title.desc' },
+  { name: 'Date de sortie croissante', value: 'release_date.asc' },
+  { name: 'Date de sortie décroissante', value: 'primary_release_date.desc' },
 ]
 const filters = [
   {
@@ -33,9 +36,6 @@ const filters = [
     id: 'genre',
     name: 'Genre',
     options: [
-      { value: 'action', label: 'Action' },
-      { value: 'thriller', label: 'Thriller' },
-
     ],
   },
 
@@ -67,18 +67,27 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
-  const [range, setRange] = useState(0);
-
+  const [range, setRange] = useState(1);
+  const [sort, setSort] = useState('popularity.desc');
+  const [choosenGenre, setChooserGenre] = useState<number[]>([]);
+  const [cGenre, setcGenre] = useState<number[]>([]);
   useEffect(() => {
+
     const urlParams = new URLSearchParams(window.location.search);
     const pageParam = urlParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
     const query = urlParams.get('query');
+    const sortParam = urlParams.get('sort');
+    const genreParams = urlParams.get('genres');
+    if (genreParams) {
+      setcGenre(genreParams.split('-').map(Number));
+    }
+    setSort(sortParam? sortParam : sort);
     const searchTermUrl = query ? query : '';
     setPage(page);
     setSearchTerm(searchTermUrl);
     if (searchTermUrl === '') {
-      get(page).then(data => {
+      get(page,sortParam? sortParam : sort,genreParams? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
           setMovies(data.movies);
           setTotalPages(data.totalPages);
@@ -86,7 +95,7 @@ export default function Home() {
         }
       }).catch(err => console.error(err));
     } else {
-      getMovieByTitl(searchTermUrl, page).then(data => {
+      getMovieByTitle(searchTermUrl, page,sortParam? sortParam : sort).then(data => {
         if (data && data.movies) {
           setMovies(data.movies);
           console.log(data.movies);
@@ -95,8 +104,45 @@ export default function Home() {
         }
       }).catch(err => console.error(err));
     }
-  }, []);
+    getMovieByGenre().then(data => {
+      // if (data && data.genre) {
+        console.log(data);
+      filters[1].options = data.genres.map((genre: { id: never; name: never; }) => {
+        return { value: genre.id, label: genre.name }
+      });
+      // }
+    }).catch(err => console.error(err));
+  }, [sort,choosenGenre]);
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, option: { value: number }) => {
+    const isChecked = e.target.checked;
 
+    setChooserGenre((prevGenres) => {
+      if (isChecked) {
+        return [...prevGenres, option.value];
+      } else {
+        return prevGenres.filter((genre) => genre !== option.value);
+      }
+    });
+
+    const url = window.location.href.split('?')[0];
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.set('page', "1");
+
+    const genreParams = queryParams.get('genres');
+    const updatedGenres = genreParams ? genreParams.split('-') : [];
+
+    if (isChecked) {
+      updatedGenres.push(option.value.toString());
+    } else {
+      const index = updatedGenres.indexOf(option.value.toString());
+      if (index !== -1) {
+        updatedGenres.splice(index, 1);
+      }
+    }
+
+    queryParams.set('genres', updatedGenres.join('-'));
+    window.location.href = url + '?' + queryParams.toString();
+  };
   function changePage(page: number) {
     if (page < 1 || page > totalPages) {
       return;
@@ -113,7 +159,6 @@ export default function Home() {
     handleSearchButtonClick();
   };
   function handleSearchButtonClick() {
-
     const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
     const queryParams = new URLSearchParams(window.location.search);
     queryParams.set('page', "1");
@@ -130,6 +175,15 @@ export default function Home() {
     e.preventDefault();
     getMovieByLocation();
   };
+
+  function sortMovies(sort: string) {
+    setSort(sort);
+    const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.set('page', "1");
+    queryParams.set('sort', sort);
+    window.location.href = url + '?' + queryParams.toString();
+  }
 
   function getMovieByLocation() {
     if (range > 0 && location != null) {
@@ -204,7 +258,7 @@ export default function Home() {
                       <h2 className="text-lg font-medium text-gray-900">Filters</h2>
                       <button
                         type="button"
-                        className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                        className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white hover:border-transparent p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                         onClick={() => setOpen(false)}
                       >
                         <span className="sr-only">Close menu</span>
@@ -220,7 +274,7 @@ export default function Home() {
                             <>
                               <h3 className="-mx-2 -my-3 flow-root">
                                 <Disclosure.Button
-                                  className="flex w-full items-center justify-between bg-white px-2 py-3 text-sm text-gray-400">
+                                  className="flex w-full items-center justify-between border-transparent border-[1px] border-solid hover:border-transparent bg-white px-2 py-3 text-sm text-gray-400">
                                   <span className="font-medium text-gray-900">{section.name}</span>
                                   <span className="ml-6 flex items-center">
                                 <ChevronDownIcon
@@ -231,26 +285,90 @@ export default function Home() {
                                 </Disclosure.Button>
                               </h3>
                               <Disclosure.Panel className="pt-6">
+
                                 <div className="space-y-6">
+
+
                                   {section.options.map((option, optionIdx) => (
+
                                     <div key={option.value} className="flex items-center">
-                                      <input
-                                        id={`filter-mobile-${section.id}-${optionIdx}`}
-                                        name={`${section.id}[]`}
-                                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                        // @ts-expect-error
-                                        defaultValue={option.value}
-                                        type="checkbox"
-                                        className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-500"
-                                      />
-                                      <label
-                                        htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
-                                        className="ml-3 text-sm text-gray-500"
-                                      >
-                                        {option.label}
-                                      </label>
+
+                                      {option.value != null ?
+                                        <>
+
+                                          <input
+                                            id={`filter-mobile-${section.id}-${optionIdx}`}
+                                            name={`${section.id}[]`}
+                                            defaultValue={option.value}
+                                            type="checkbox"
+                                            checked={cGenre.includes(option.value)}
+                                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                            // @ts-expect-error
+                                            onChange={(e) => handleCheckboxChange(e, {value: option.value})}
+                                            className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-500"
+                                          />
+                                          <label
+                                            htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
+                                            className="ml-3 text-sm text-gray-500"
+                                          >
+                                            {option.label}
+                                          </label>
+
+                                        </>
+                                        :
+                                        <div className="block">
+                                          <div className="flex w-40 justify-center">
+                                            {location == null ?
+                                              <button
+                                                className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
+                                                onClick={handleFormSubmitloc}>
+                                                <MapPinIcon color={"black"} className="mr-2" width={25}/> Autour de moi
+                                              </button>
+                                              : ""}
+                                          </div>
+
+                                          {location && (
+                                            <div className=" ">
+
+                                              <label htmlFor="locationRange" className="text-gray-600 ">Cinémas à moins
+                                                de
+                                                :</label>
+
+
+                                              <div className="block ">
+                                                <input className="w-full my-4"
+                                                       type="range"
+                                                       id="locationRange"
+                                                       name="locationRange"
+                                                       min="1"
+                                                       max="100"
+                                                       step="1"
+                                                       value={range}
+                                                       onChange={(e) => setRange(parseInt(e.target.value))}
+                                                  // onChange={handleRangeChange}
+                                                />
+                                                <p
+                                                  className="text-gray-500 pb-2">{range}{range > 1 ? " kms" : " km"}</p>
+                                              </div>
+                                              <button onClick={handleFormSubmitRange}
+                                                      className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
+                                                Rechercher
+                                              </button>
+
+                                            </div>
+                                          )}
+                                          {error && <p className="text-gray-500 text-center">{error}</p>}
+                                        </div>}
                                     </div>
                                   ))}
+                                  {section.id === 'genre' && (
+                                  <button
+                                    onClick={() => setcGenre([])}
+                                    className="text-sm text-white">
+                                    Réinitialiser
+                                  </button>
+                                    )}
+
                                 </div>
                               </Disclosure.Panel>
                             </>
@@ -259,58 +377,55 @@ export default function Home() {
                       ))}
                     </form>
                   </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </Dialog>
-          </Transition.Root>
-          <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:max-w-7xl lg:px-8">
+                            </Transition.Child>
+                            </div>
+                            </Dialog>
+                            </Transition.Root>
+                            <div className="mx-auto max-w-7xl  text-center lg:max-w-7xl ">
 
 
-            <section aria-labelledby="filter-heading" className="border-t border-gray-200 py-6">
-              <h2 id="filter-heading" className="sr-only">
-                filters
-              </h2>
+                            <section aria-labelledby="filter-heading" className="border-t border-gray-200 py-6">
+                            <h2 id="filter-heading" className="sr-only">
+                            filters
+                            </h2>
 
-              <div className="flex items-center justify-between">
-                <Menu as="div" className="relative inline-block text-left">
-                  <div>
-                    <Menu.Button
-                      className="group inline-flex justify-center border-[1px] border-solid border-transparent hover:border-yellow-300 text-sm font-medium text-gray-100 hover:text-gray-200">
-                      Sort
-                      <ChevronDownIcon
-                        className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-100 group-hover:text-gray-200"
-                        aria-hidden="true"
-                      />
-                    </Menu.Button>
-                  </div>
+                            <div className="flex items-center justify-between">
+                            <Menu as="div" className="relative inline-block text-left">
+                            <div>
+                            <Menu.Button
+                            className="group inline-flex justify-center border-[1px] border-solid border-transparent hover:border-yellow-300 text-sm font-medium text-gray-100 hover:text-gray-200">
+                            Trier
+                            <ChevronDownIcon
+                            className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-100 group-hover:text-gray-200"
+                            aria-hidden="true"
+                            />
+                            </Menu.Button>
+                            </div>
 
-                  <Transition
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
-                    <Menu.Items
-                      className="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      <div className="py-1">
-                        {sortOptions.map((option) => (
-                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                          // @ts-expect-error
-                          <Menu.Item key={option.value}>
-                            {({active}) => (
-                              <a
-                                href={option.href}
-                                className={classNames(
-                                  active ? 'bg-gray-100 hover:text-yellow-500' : '',
-                                  'block px-4 py-2 text-sm font-medium text-gray-600'
+                            <Transition
+                            as={Fragment}
+                          enter="transition ease-out duration-100"
+                          enterFrom="transform opacity-0 scale-95"
+                          enterTo="transform opacity-100 scale-100"
+                          leave="transition ease-in duration-75"
+                          leaveFrom="transform opacity-100 scale-100"
+                          leaveTo="transform opacity-0 scale-95"
+                        >
+                          <Menu.Items
+                            className="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div className="py-1">
+                              {sortOptions.map((option) => (
+                                <Menu.Item key={option.value}>
+                                    <div
+                                      onClick={() => sortMovies(option.value)}
+                                      className={classNames(
+                                  option.value==sort ? ' cursor-pointer bg-gray-200 hover:text-orange-400' : '',
+                                  'block px-4 py-2 text-sm cursor-pointer font-medium text-gray-600 hover:text-orange-400'
                                 )}
                               >
                                 {option.name}
-                              </a>
-                            )}
+                              </div>
+
                           </Menu.Item>
                         ))}
                       </div>
@@ -320,7 +435,7 @@ export default function Home() {
 
                 <button
                   type="button"
-                  className="inline-block text-sm font-medium text-gray-700 hover:text-gray-900 sm:hidden"
+                  className="inline-block text-sm font-medium text-gray-100 hover:text-gray-200 border-[1px] border-transparent border-solid hover:border-yellow-300 sm:hidden"
                   onClick={() => setOpen(true)}
                 >
                   Filters
@@ -371,6 +486,10 @@ export default function Home() {
                                       id={`filter-${section.id}-${optionIdx}`}
                                       name={`${section.id}[]`}
                                       defaultValue={option.value}
+                                      checked={cGenre.includes(option.value)}
+                                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                      // @ts-expect-error
+                                      onChange={(e) => handleCheckboxChange(e, { value: option.value })}
                                       type="checkbox"
                                       className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-300"
                                     />
@@ -418,17 +537,26 @@ export default function Home() {
                                         </div>
                                       </div>
                                     )}
-                                    {error && <p>{error}</p>}
+                                    {error && <p className="text-gray-500 text-center">{error}</p>}
                                   </div>
 
                                 }
                               </div>
                             ))}
+                            {section.id === 'genre' && (
+                              <button
+                                onClick={() => setcGenre([])}
+                                className="text-sm text-white">
+                                Réinitialiser
+                              </button>
+                            )}
                           </form>
+
                         </Popover.Panel>
                       </Transition>
                     </Popover>
                   ))}
+
                 </Popover.Group>
               </div>
             </section>
@@ -448,7 +576,7 @@ export default function Home() {
             {movies.length < 1 ? <p className="text-gray-50">Chargement...</p> :
               <>
                 <div className="flex  items-center justify-center pb-5 lg:justify-end">
-                  <div className="w-full max-w-lg lg:max-w-7xl">
+                  <div className="w-full  lg:max-w-7xl">
                     <form onSubmit={handleFormSubmitSearch}>
                       <label htmlFor="search" className="sr-only">
                         Search
@@ -484,7 +612,7 @@ export default function Home() {
 
                 <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                   {movies && movies.map((movie: Imovie, index) => (
-                    <>{movie.external_id ? <CardMovie key={index} movie={movie}/> : null}</>
+                    <><CardMovie key={index} movie={movie}/> </>
                   ))}
                 </ul>
                 <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage}/>

@@ -1,5 +1,5 @@
 
-export const get = async (page: number = 1) => {
+export const get = async (page: number = 1,sort:string,genre:string) => {
   const options = {
     method: 'GET',
     headers: {
@@ -11,7 +11,7 @@ export const get = async (page: number = 1) => {
   try {
     const [genreData, movieData] = await Promise.all([
       fetch('https://api.themoviedb.org/3/genre/movie/list?language=fr-FR', options).then(response => response.json()),
-      fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=fr-FR&page=${page}&sort_by=popularity.desc`, options).then(response => response.json())
+      fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=fr-FR&page=${page}&sort_by=${sort}&&with_genres=${genre}`, options).then(response => response.json())
     ]);
     const totalPages = movieData.total_pages;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -77,7 +77,7 @@ export const getMovieByLocationAndRange = async (locationUser: { latitude: strin
     throw err;
   }
 }
-export const getMovieByTitl = async (title: string, page: number = 1) => {
+export const getMovieByTitle = async (title: string, page: number = 1, sort:string) => {
   const options = {
     method: 'GET',
     headers: {
@@ -89,7 +89,7 @@ export const getMovieByTitl = async (title: string, page: number = 1) => {
   try {
     const [genreData, movieData] = await Promise.all([
       fetch('https://api.themoviedb.org/3/genre/movie/list?language=fr-FR', options).then(response => response.json()),
-      fetch(`https://api.themoviedb.org/3/search/movie?query=${title}&include_adult=false&language=fr-FR&page=${page}`, options).then(response => response.json())
+      fetch(`https://api.themoviedb.org/3/search/movie?query=${title}&include_adult=false&language=fr-FR&page=${page}&sort_by=${sort}`, options).then(response => response.json())
     ]);
 
     const totalPages = movieData.total_pages;
@@ -115,3 +115,21 @@ export const getMovieByTitl = async (title: string, page: number = 1) => {
     console.error('Error fetching data:', error);
   }
 };
+
+export const getMovieByGenre = async () => {
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3OWVlMWUwZjFjMGQwMDZiMTgxYzg1N2JhZmU3Mzc1ZCIsInN1YiI6IjY1YzNlNGI1YzE1Zjg5MDE3Y2Y2MmViYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Xy9rJg2eK6R1tJBw9PJXxsrhsOz5JijdYarcch9rtJ0'
+    }
+  };
+try {
+  const response = await fetch('https://api.themoviedb.org/3/genre/movie/list?language=fr-FR', options);
+  const genreData = await response.json();
+  return genreData;
+} catch (err) {
+  console.error(err);
+  throw err;
+}
+}
