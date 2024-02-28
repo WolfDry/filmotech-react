@@ -1,8 +1,9 @@
 import { StarIcon } from '@heroicons/react/20/solid'
 import { Movie } from "../interface/Movie.tsx";
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import { Review } from '../interface/Reviews.tsx';
+import Error from './Error.tsx'
 import noImage from '../../public/no-image.jpg';
 
 interface Imovie {
@@ -17,6 +18,7 @@ const Reviews = ({ movie }: Imovie) => {
   const [name, setName] = useState('')
   const [firstName, setFirstName] = useState('')
   const [comment, setComment] = useState('')
+  const [error, setError] = useState('')
 
   const [reviews, setReviews] = useState([])
 
@@ -26,25 +28,30 @@ const Reviews = ({ movie }: Imovie) => {
       .then(data => setReviews(data))
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     getReviews()
   }, [])
-
-  console.log(reviews)
 
   const addComment = () => {
     let data = []
 
     if (name === '' || name === undefined || name === ' ') {
+      setError('Le nom est incorrect')
       return
     }
+
     if (firstName === '' || firstName === undefined || firstName === ' ') {
+      setError('Le prénom est incorrect')
       return
     }
+
     if (comment === '' || comment === undefined || comment === ' ') {
+      setError('Le commentaire est incorrect')
       return
     }
+
     if (starsClicked === 0 || starsClicked === undefined) {
+      setError('La note est incorrect')
       return
     }
 
@@ -81,7 +88,6 @@ const Reviews = ({ movie }: Imovie) => {
         className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:grid lg:max-w-7xl lg:grid-cols-12 lg:gap-x-8 lg:px-8 lg:py-32">
         <div className="lg:col-span-4">
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">Commentaires</h2>
-
           <div className="mt-3 flex items-center">
             <div>
               <div className="flex items-center">
@@ -112,13 +118,15 @@ const Reviews = ({ movie }: Imovie) => {
             </div>
             <p className="ml-2 text-sm text-gray-900">Basé sur {movie.vote_count} Critiques</p>
           </div>
-
-
           <div className="mt-10">
             <h3 className="text-lg font-medium text-gray-900">Partagez vos pensées</h3>
             <p className="mt-1 text-sm text-gray-600">
               Partagez vos avis et critiques sur ce film
             </p>
+            {
+              error &&
+              <Error erreur={error}/>
+            }
             <div className={`${formCommentIsOpen ? '' : 'hidden'}`}>
               <form action="#" method="POST">
                 <div className="my-2 flex justify-center">
@@ -207,7 +215,6 @@ const Reviews = ({ movie }: Imovie) => {
             </div>
           </div>
         </div>
-
         <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
           <h3 className="sr-only">Recent reviews</h3>
           <div className="flow-root">
