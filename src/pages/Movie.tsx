@@ -3,7 +3,7 @@ import {StarIcon,SpeakerWaveIcon, SpeakerXMarkIcon} from '@heroicons/react/20/so
 import {useParams} from 'react-router-dom';
 import {getMovieById} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
-import Review from "../Components/Review.tsx";
+import Review from "../Components/Reviews.tsx";
 import noImage from '/public/no-image.jpg';
 
 const reviews = {

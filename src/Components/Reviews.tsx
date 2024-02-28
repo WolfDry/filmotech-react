@@ -1,119 +1,15 @@
 import { StarIcon } from '@heroicons/react/20/solid'
 import { Movie } from "../interface/Movie.tsx";
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
-import { useState } from "react";
+import { useEffect, useState } from "react"; 
+import { Review } from '../interface/Reviews.tsx';
+import noImage from '../../public/no-image.jpg';
 
 interface Imovie {
   movie: Movie
 }
 
-const reviews = {
-  average: 4,
-  totalCount: 1624,
-  counts: [
-    { rating: 5, count: 1019 },
-    { rating: 4, count: 162 },
-    { rating: 3, count: 97 },
-    { rating: 2, count: 199 },
-    { rating: 1, count: 147 },
-  ],
-  featured: [
-    {
-      id: 1,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    {
-      id: 2,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    }, {
-      id: 3,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    }, {
-      id: 4,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    {
-      id: 5,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    {
-      id: 6,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    {
-      id: 7,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    {
-      id: 8,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    {
-      id: 9,
-      rating: 5,
-      content: `
-        <p>This is the bag of my dreams. I took it on my last vacation and was able to fit an absurd amount of snacks for the many long and hungry flights.</p>
-      `,
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-
-
-    // More reviews...
-  ],
-}
-
-
-const Review = ({ movie }: Imovie) => {
+const Reviews = ({ movie }: Imovie) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [starsClicked, setStarsClicked] = useState(0);
 
@@ -121,6 +17,20 @@ const Review = ({ movie }: Imovie) => {
   const [name, setName] = useState('')
   const [firstName, setFirstName] = useState('')
   const [comment, setComment] = useState('')
+
+  const [reviews, setReviews] = useState([])
+
+  const getReviews = () => {
+    fetch(`http://localhost:3000/api/comment/get/${movie.imdb_id}`)
+      .then(response => response.json())
+      .then(data => setReviews(data))
+  }
+
+  useEffect(()=>{
+    getReviews()
+  }, [])
+
+  console.log(reviews)
 
   const addComment = () => {
     let data = []
@@ -140,7 +50,7 @@ const Review = ({ movie }: Imovie) => {
 
     data.push({
       "name": name,
-      "fistName": firstName,
+      "firstName": firstName,
       "comment": comment,
       "rating": starsClicked,
       "movieId": movie.id,
@@ -151,7 +61,7 @@ const Review = ({ movie }: Imovie) => {
   }
 
   async function insertData(data: Object) {
-    try { 
+    try {
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -296,26 +206,23 @@ const Review = ({ movie }: Imovie) => {
               {!formCommentIsOpen ? <p>Ecrire un commentaire</p> : <p>Annuler</p>}
             </div>
           </div>
-
-
         </div>
 
         <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
           <h3 className="sr-only">Recent reviews</h3>
-
           <div className="flow-root">
             <div className="-my-12 divide-y divide-gray-200">
-              {reviews.featured.map((review) => (
+              {reviews.map((review: Review) => (
                 <div key={review.id} className="py-12">
                   <div className="flex items-center">
-                    <img src={review.avatarSrc} alt={`${review.author}.`} className="h-12 w-12 rounded-full" />
+                    <img src={noImage} alt={`${review.firstName}.`} className="h-12 w-12 rounded-full" />
                     <div className="ml-4">
-                      <h4 className="text-sm font-bold text-gray-900">{review.author}</h4>
+                      <h4 className="text-sm font-bold text-gray-900">{review.firstName + ' ' + review.name}</h4>
                       <div className="mt-1 flex items-center">
                         {[0, 1, 2, 3, 4].map((rating, index) => (
                           <StarIcon
                             key={index}
-                            className={'h-5 w-5 flex-shrink-0' + (review.rating > rating ? 'text-yellow-400' : 'text-gray-300')}
+                            className={'h-5 w-5 flex-shrink-0 ' + (review.rating > rating ? 'text-yellow-400' : 'text-gray-300')}
                             aria-hidden="true"
                           />
                         ))}
@@ -323,10 +230,9 @@ const Review = ({ movie }: Imovie) => {
                       <p className="sr-only">{review.rating} out of 5 stars</p>
                     </div>
                   </div>
-
                   <div
                     className="mt-4 space-y-6 text-base italic text-gray-600"
-                    dangerouslySetInnerHTML={{ __html: review.content }}
+                    dangerouslySetInnerHTML={{ __html: review.comment }}
                   />
                 </div>
               ))}
@@ -338,5 +244,5 @@ const Review = ({ movie }: Imovie) => {
   );
 };
 
-export default Review;
+export default Reviews;
 
