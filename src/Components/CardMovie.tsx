@@ -1,7 +1,7 @@
 import { FaStar } from 'react-icons/fa';
 import {Link} from "react-router-dom";
 import {Movie} from "../interface/Movie.tsx";
-import noImage from '../../public/no-image.jpg';
+import noImage from '/no-image.jpg';
 interface Imovie {
   movie : Movie
 }

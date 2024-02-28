@@ -4,7 +4,7 @@ import {useParams} from 'react-router-dom';
 import {getMovieById} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
 import Review from "../Components/Reviews.tsx";
-import noImage from '/public/no-image.jpg';
+import noImage from '/no-image.jpg';
 
 const reviews = {
   average: 4,
