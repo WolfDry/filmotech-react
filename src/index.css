@@ -27,6 +27,7 @@ a:hover {
 }
 
 .body {
+
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -39,6 +40,9 @@ a:hover {
 h1 {
     font-size: 3.2em;
     line-height: 1.1;
+}
+html{
+    background-color: #1a1a1a;
 }
 
 button {
@@ -80,7 +84,7 @@ button:focus-visible {
 @media (prefers-color-scheme: light) {
     :root {
         color: #213547;
-        background-color: #ffffff;
+        background-color: #2a2a2a;
     }
 
     a:hover {

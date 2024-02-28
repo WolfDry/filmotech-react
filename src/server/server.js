@@ -39,6 +39,47 @@ app.get('/api/cinema/get', async (req, res) => {
     res.json(data);
 });
 
+app.post('/api/movie-in-range', async (req, res) => {
+    const db = client.db();
+    const locationUser = req.body.location;
+
+    const range = req.body.range;
+    const collection = db.collection('cinema');
+    const cinema = await collection.find({}).toArray();
+    const cinemas = filterCinemasByDistance({ lat: parseFloat(locationUser.latitude), lon: parseFloat(locationUser.longitude) }, cinema, range);
+
+    //get tab ids cinema
+    //  const tabCinemaId = cinemas.map(cinema => {return(cinema.movies);});
+    res.json(cinemas);
+});
+function haversineDistance(lat1, lon1, lat2, lon2) {
+    const toRadians = (angle) => angle * (Math.PI / 180);
+
+    const dLat = toRadians(lat2 - lat1);
+    const dLon = toRadians(lon2 - lon1);
+
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const earthRadius = 6371;
+
+    const distance = earthRadius * c;
+
+    return distance;
+}
+
+function filterCinemasByDistance(userLocation, cinemas, maxDistance) {
+    return cinemas.filter(cinema => {
+        const distance = haversineDistance(
+            userLocation.lat, userLocation.lon,
+            parseFloat(cinema.latitude), parseFloat(cinema.longitude)
+        );
+
+        return distance <= maxDistance;
+    });
+}
 // Example route to fetch data from MongoDB
 app.post('/api/cinema/insert', async (req, res) => {
     try {
