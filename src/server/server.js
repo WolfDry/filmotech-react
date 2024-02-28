@@ -54,6 +54,17 @@ app.post('/api/cinema/insert', async (req, res) => {
 });
 
 // Example route to fetch data from MongoDB
+app.get('/api/comment/get/:id', async (req, res) => {
+    const db = client.db();
+    const id = req.params.id;
+    const collection = db.collection('comment');
+    const data = await collection.find({
+        movieImdb: id
+    }).toArray();
+    res.json(data);
+});
+
+// Example route to fetch data from MongoDB
 app.post('/api/comment/insert', async (req, res) => {
     try {
         const db = client.db();
