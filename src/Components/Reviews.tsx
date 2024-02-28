@@ -4,7 +4,7 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import { useEffect, useState } from "react";
 import { Review } from '../interface/Reviews.tsx';
 import Error from './Error.tsx'
-import noImage from '../../public/no-image.jpg';
+import noImage from '/no-image.jpg';
 
 interface Imovie {
   movie: Movie
