@@ -161,10 +161,16 @@ export default function MovieOnly() {
                   <><p className="mt-6 text-gray-500">{movie.overview}</p>
                     <div className=" flex justify-center pt-1">
                       {onSpeak ?
-                        <><SpeakerWaveIcon onClick={() => {handleSpeak(movie?.overview)}} color={"orange"} height={35} width={35} className="border-solid cursor-pointer transition duration-100 border-orange-500 hover:text-[#252525] hover:border-[#252525] text-orange-500 border-[1px] p-2 rounded-full"/></>:
-                        <><SpeakerXMarkIcon onClick={() => {handleSpeak(movie?.overview)}} color={"#252525"} height={35} width={35} className="border-solid hover:text-orange-500 hover:border-orange-500 transition duration-100 cursor-pointer border-[#252525] border-[1px] p-2 rounded-full"/></>
+                        <><SpeakerWaveIcon onClick={() => {
+                          handleSpeak(movie?.overview)
+                        }} color={"orange"} height={35} width={35}
+                                           className="border-solid cursor-pointer transition duration-100 border-orange-500 hover:text-[#252525] hover:border-[#252525] text-orange-500 border-[1px] p-2 rounded-full"/></> :
+                        <><SpeakerXMarkIcon onClick={() => {
+                          handleSpeak(movie?.overview)
+                        }} color={"#252525"} height={35} width={35}
+                                            className="border-solid hover:text-orange-500 hover:border-orange-500 transition duration-100 cursor-pointer border-[#252525] border-[1px] p-2 rounded-full"/></>
                       }
-                      </div>
+                    </div>
                   </>
                 }
                 <div className="mt-10 border-t border-gray-200 pt-10">
@@ -181,6 +187,18 @@ export default function MovieOnly() {
                     </div>
                   }
                 </div>
+                {movie.genres.length < 1 ? "" :<div className="hidden mt-10 border-t border-gray-200 pt-10">
+                  <h3 className="text-lg font-medium text-gray-900">Cinémas</h3>
+                    <div className="prose prose-sm mt-4 text-gray-500">
+                      <ul role="list">
+                        {movie.genres.map((cinema) => (
+                          <span key={cinema.id}
+                                className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
+                       {cinema.name}</span>
+                        ))}
+                      </ul>
+                    </div>
+                </div> }
 
               </div>
 
@@ -194,10 +212,10 @@ export default function MovieOnly() {
                     <>
                       {movie.production_companies.map((prod) => (
 
-                          <div key={prod.name} className="flex justify-center">
-                            {prod.logo_path == null ? <p> {prod.name}</p> :
-                              <img src={`https://image.tmdb.org/t/p/original${prod.logo_path}`} alt={prod.logo_path}
-                                   className=" h-12 object-cover prod-movie object-center my-2"/>}
+                        <div key={prod.name} className="flex justify-center">
+                          {prod.logo_path == null ? <p> {prod.name}</p> :
+                            <img src={`https://image.tmdb.org/t/p/original${prod.logo_path}`} alt={prod.logo_path}
+                                 className=" h-12 object-cover prod-movie object-center my-2"/>}
 
                           </div>
                         )

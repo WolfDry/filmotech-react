@@ -116,7 +116,7 @@ export const getMovieByTitle = async (title: string, page: number = 1, sort:stri
   }
 };
 
-export const getMovieByGenre = async () => {
+export const getGenre = async () => {
   const options = {
     method: 'GET',
     headers: {
