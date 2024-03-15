@@ -1,7 +1,7 @@
 import CardMovie from '../Components/CardMovie.tsx'
 import Pagination from '../Components/Pagination.tsx'
 import {useEffect, useState} from 'react'
-import {get, getMovieByGenre, getMovieByLocationAndRange, getMovieByTitle} from "../api/tmdb.tsx";
+import {get, getGenre, getMovieByLocationAndRange, getMovieByTitle} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
 import {Production} from "../interface/Production.tsx";
 import {Genre} from "../interface/Genre.tsx";
@@ -79,13 +79,26 @@ export default function Home() {
     const query = urlParams.get('query');
     const sortParam = urlParams.get('sort');
     const genreParams = urlParams.get('genres');
-    if (genreParams) {
-      setcGenre(genreParams.split('-').map(Number));
-    }
-    setSort(sortParam? sortParam : sort);
+    const locParam = urlParams.get('loc');
     const searchTermUrl = query ? query : '';
     setPage(page);
     setSearchTerm(searchTermUrl);
+    setSort(sortParam? sortParam : sort);
+    if (genreParams) {
+      setcGenre(genreParams.split('-').map(Number));
+    }
+    if (locParam) {
+      const loc = locParam.split('-');
+      setLocation({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        latitude: parseFloat(loc[0]),
+        longitude: parseFloat(loc[1]),
+      });
+
+      // get movies by location
+
+    }
     if (searchTermUrl === '') {
       get(page,sortParam? sortParam : sort,genreParams? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
@@ -94,7 +107,8 @@ export default function Home() {
           setLoading(false);
         }
       }).catch(err => console.error(err));
-    } else {
+    }
+    else {
       getMovieByTitle(searchTermUrl, page,sortParam? sortParam : sort).then(data => {
         if (data && data.movies) {
           setMovies(data.movies);
@@ -104,7 +118,7 @@ export default function Home() {
         }
       }).catch(err => console.error(err));
     }
-    getMovieByGenre().then(data => {
+    getGenre().then(data => {
       // if (data && data.genre) {
         console.log(data);
       filters[1].options = data.genres.map((genre: { id: never; name: never; }) => {
@@ -153,7 +167,6 @@ export default function Home() {
       window.location.href = url + '?' + queryParams.toString();
     }
   }
-
   const handleFormSubmitSearch = (e: { preventDefault: () => void; }) => {
     e.preventDefault(); // Prevents the default form submission behavior
     handleSearchButtonClick();
@@ -169,13 +182,10 @@ export default function Home() {
     e.preventDefault(); // Prevents the default form submission behavior
     getLocation();
   };
-
-  const handleFormSubmitRange = (e: { preventDefault: () => void; }) =>
-  {
+  const handleFormSubmitRange = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     getMovieByLocation();
   };
-
   function sortMovies(sort: string) {
     setSort(sort);
     const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
@@ -184,17 +194,23 @@ export default function Home() {
     queryParams.set('sort', sort);
     window.location.href = url + '?' + queryParams.toString();
   }
-
   function getMovieByLocation() {
     if (range > 0 && location != null) {
       console.log(location);
       console.log(range);
       getMovieByLocationAndRange(location, range).then(data => {
        console.log(data);
+
+
+        const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
+        const queryParams = new URLSearchParams(window.location.search);
+        queryParams.set('page', "1");
+        // @ts-ignore
+        queryParams.set('loc', location.latitude + '-' + location.longitude);
+        window.location.href = url + '?' + queryParams.toString();
       }).catch(err => console.error(err));
     }
   }
-
   const getLocation = async () => {
     if (navigator.geolocation) {
       try {
@@ -221,8 +237,6 @@ export default function Home() {
       setError('Geolocation is not supported in this browser.');
     }
   };
-
-
   return (
     <>
 
