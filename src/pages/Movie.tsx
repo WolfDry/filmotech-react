@@ -6,36 +6,6 @@ import {Movie} from "../interface/Movie.tsx";
 import Review from "../Components/Reviews.tsx";
 import noImage from '/no-image.jpg';
 
-const reviews = {
-  average: 4,
-  featured: [
-    {
-      id: 1,
-      rating: 5,
-      content: `
-        <p>This icon pack is just what I need for my latest project. There's an icon for just about anything I could ever need. Love the playful look!</p>
-      `,
-      date: 'July 16, 2021',
-      datetime: '2021-07-16',
-      author: 'Emily Selman',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    {
-      id: 2,
-      rating: 5,
-      content: `
-        <p>Blown away by how polished this icon pack is. Everything looks so consistent and each SVG is optimized out of the box so I can use it directly with confidence. It would take me several hours to create a single icon this good, so it's a steal at this price.</p>
-      `,
-      date: 'July 12, 2021',
-      datetime: '2021-07-12',
-      author: 'Hector Gibbons',
-      avatarSrc:
-        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80',
-    },
-    // More reviews...
-  ],
-}
 
 export default function MovieOnly() {
 
@@ -61,6 +31,13 @@ export default function MovieOnly() {
   const [movie, setMovie] = useState<Movie | null>(null);
 
   const {id} = useParams();
+  const [reviews, setReviews] = useState([])
+
+  const getReviews = (data:string) => {
+    fetch(`http://localhost:3000/api/comment/get/${data}`)
+      .then(response => response.json())
+      .then(data => setReviews(data.reverse()))
+  }
 
   useEffect(() => {
     // const availableVoices = window.speechSynthesis.getVoices(); // Choix des voix ?
@@ -69,7 +46,9 @@ export default function MovieOnly() {
     // }
     getMovieById(id!).then(data => {
       setMovie(data);
+      getReviews(data.imdb_id)
     }).catch(err => console.error(err));
+
 
   }, [id]);
 
@@ -126,10 +105,11 @@ export default function MovieOnly() {
                   </div>
 
                   <div>
-                    <h3 className="sr-only">Reviews</h3>
                     <div className="flex items-center">
                       {[0, 1, 2, 3, 4].map((index) => {
-                        const rating = Math.round(movie.vote_average) / 2;
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-expect-error
+                        const rating = Math.round((movie.vote_average + reviews.reduce((acc, review) => acc + review.rating, 0)) / (reviews.length + 1)) / 2;
                         const isFilled = index < Math.floor(rating);
                         const isHalfFilled = !isFilled && index + 0.5 === rating;
 
@@ -152,8 +132,9 @@ export default function MovieOnly() {
                         );
                       })}
                     </div>
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-expect-error
 
-                    <p className="sr-only">{reviews.average} out of 5 stars</p>
                   </div>
                 </div>
                 {movie.overview == '' ?

@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Review } from '../interface/Reviews.tsx';
 import Error from './Error.tsx'
 import noImage from '/no-image.jpg';
+import Succes from "./Succes.tsx";
+import succes from "./Succes.tsx";
 
 interface Imovie {
   movie: Movie
@@ -19,6 +21,7 @@ const Reviews = ({ movie }: Imovie) => {
   const [firstName, setFirstName] = useState('')
   const [comment, setComment] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const [reviews, setReviews] = useState([])
 
@@ -69,6 +72,14 @@ const Reviews = ({ movie }: Imovie) => {
     setComment('')
     setStarsClicked(0)
 
+    setFormCommentIsOpen(!formCommentIsOpen)
+    setError('')
+    setTimeout(() => {
+      setSuccess('Votre commentaire a bien été ajouté')
+      setTimeout(() => {
+        setSuccess('')
+      }, 3000)
+    })
     insertData(data)
   }
 
@@ -97,7 +108,9 @@ const Reviews = ({ movie }: Imovie) => {
             <div>
               <div className="flex items-center">
                 {[0, 1, 2, 3, 4].map((index) => {
-                  const rating = Math.round(movie.vote_average) / 2;
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-expect-error
+                  const rating = Math.round((movie.vote_average + reviews.reduce((acc, review) => acc + review.rating, 0)) / (reviews.length + 1)) / 2;
                   const isFilled = index < Math.floor(rating);
                   const isHalfFilled = !isFilled && index + 0.5 === rating;
                   return (
@@ -120,17 +133,21 @@ const Reviews = ({ movie }: Imovie) => {
                 })}
               </div>
             </div>
-            <p className="ml-2 text-sm text-gray-900">Basé sur {movie.vote_count} Critiques</p>
+            <p className="ml-2 text-sm text-gray-900">Basé sur {movie.vote_count + reviews.length } Critiques</p>
+
           </div>
+
           <div className="mt-10">
+
             <h3 className="text-lg font-medium text-gray-900">Partagez vos pensées</h3>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1  text-sm text-gray-600">
               Partagez vos avis et critiques sur ce film
             </p>
             {
               error &&
               <Error erreur={error}/>
             }
+
             <div className={`${formCommentIsOpen ? '' : 'hidden'}`}>
               <form action="#" method="POST">
                 <div className="my-2 flex justify-center">
@@ -218,8 +235,14 @@ const Reviews = ({ movie }: Imovie) => {
             <div onClick={() => setFormCommentIsOpen(!formCommentIsOpen)}
               className="mt-6 inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
             >
-              {!formCommentIsOpen ? <p>Ecrire un commentaire</p> : <p>Annuler</p>}
+              {!formCommentIsOpen ? <p className="cursor-pointer">Ecrire un commentaire</p> : <p className="cursor-pointer">Annuler</p>}
             </div>
+            {
+              success &&
+                <div className="mt-4">
+                    <Succes succes={success} />
+                </div>
+            }
           </div>
         </div>
         <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
@@ -245,7 +268,7 @@ const Reviews = ({ movie }: Imovie) => {
                     </div>
                   </div>
                   <div
-                    className="mt-4 space-y-6 text-base italic text-gray-600"
+                    className="mt-4 space-y-6 text-left text-base italic text-gray-600"
                     dangerouslySetInnerHTML={{ __html: review.comment }}
                   />
                 </div>
