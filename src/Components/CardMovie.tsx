@@ -2,10 +2,22 @@ import { FaStar } from 'react-icons/fa';
 import {Link} from "react-router-dom";
 import {Movie} from "../interface/Movie.tsx";
 import noImage from '/no-image.jpg';
+import {useEffect, useState} from "react";
 interface Imovie {
   movie : Movie
 }
 const CardMovie = ({ movie } : Imovie, ) => {
+  const [reviews, setReviews] = useState([])
+
+  const getReviews = () => {
+    fetch(`http://localhost:3000/api/comment/get/${movie.imdb_id}`)
+      .then(response => response.json())
+      .then(data => setReviews(data.reverse()))
+  }
+
+  useEffect(() => {
+    getReviews()
+  }, [])
   return (
     <li className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow">
       <div className="flex flex-1 flex-col">
@@ -31,7 +43,8 @@ const CardMovie = ({ movie } : Imovie, ) => {
                 ))}
             </div>
               <span className="flex justify-end items-center rounded-full px-2 m text-xs font-medium text-gray-600">
-            {(Math.round(movie.vote_average) / 2)}
+            {(Math.round((movie.vote_average + reviews.reduce((acc, review) => acc + review.rating, 0)) / (reviews.length + 1)) / 2)}
+
                 &nbsp; <FaStar className="my-2 text-yellow-300"/>
           </span>
             </div>
