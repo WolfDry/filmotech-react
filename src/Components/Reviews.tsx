@@ -6,7 +6,6 @@ import { Review } from '../interface/Reviews.tsx';
 import Error from './Error.tsx'
 import noImage from '/no-image.jpg';
 import Succes from "./Succes.tsx";
-import succes from "./Succes.tsx";
 
 interface Imovie {
   movie: Movie
@@ -36,7 +35,7 @@ const Reviews = ({ movie }: Imovie) => {
   }, [])
 
   const addComment = () => {
-    let data = []
+    const data = []
 
     if (name === '' || name === undefined || name === ' ') {
       setError('Le nom est incorrect')
@@ -83,7 +82,7 @@ const Reviews = ({ movie }: Imovie) => {
     insertData(data)
   }
 
-  async function insertData(data: Object) {
+  async function insertData(data: NonNullable<unknown>) {
     try {
       const requestOptions = {
         method: 'POST',
