@@ -42,15 +42,25 @@ app.get('/api/cinema/get', async (req, res) => {
 app.post('/api/movie-in-range', async (req, res) => {
     const db = client.db();
     const locationUser = req.body.location;
-
     const range = req.body.range;
     const collection = db.collection('cinema');
     const cinema = await collection.find({}).toArray();
     const cinemas = filterCinemasByDistance({ lat: parseFloat(locationUser.latitude), lon: parseFloat(locationUser.longitude) }, cinema, range);
-
-    //get tab ids cinema
-    //  const tabCinemaId = cinemas.map(cinema => {return(cinema.movies);});
-    res.json(cinemas);
+    const  Cmovies = []
+    for (const cinema of cinemas) {
+        for (const movie of cinema.movies) {
+            const movieWithCinemaInfo = {
+                cinema: {
+                    _id: cinema._id,
+                    name: cinema.name,
+                },
+                movie: movie
+            };
+            Cmovies.push(movieWithCinemaInfo);
+        }
+    }
+    // ajouter pagination
+    res.json(Cmovies);
 });
 function haversineDistance(lat1, lon1, lat2, lon2) {
     const toRadians = (angle) => angle * (Math.PI / 180);
@@ -118,6 +128,57 @@ app.post('/api/comment/insert', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+
+
+app.get('/associate-movies-to-cinemas', async (req, res) => {
+    try {
+        const db = client.db();
+        // Récupérer tous les cinémas depuis la base de données MongoDB
+        const collection = db.collection('cinema');
+        const cinemas = await collection.find({}).toArray();
+
+        // Récupérer les films depuis la base de données externe
+
+        console.log(cinemas);
+        const allMovies = []; // Stocker tous les films récupérés
+        for (let i = 1; i < 500; i++) {
+            console.log(i);
+            const response = await fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=fr-FR&page=${i}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZTg4NzNlMzRlZTE2Yjg2MTJhYjU0YmVhNTEyOGY3MSIsInN1YiI6IjY1YzBlOGRlNWUxMjAwMDE4MjFjYzk0ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.E4QvWPT3SBchnzpCLiaIJ-3c3ucRfWvCewJtXiFEQqU',
+                },
+            });
+            const { results: movies } = await response.json();
+            allMovies.push(...movies);
+        }
+
+        for (const cinema of cinemas) {
+            const randomMovies = [];
+            const moviesToAdd = Math.min(15, allMovies.length); // Nombre maximum de films à ajouter
+            while (randomMovies.length < moviesToAdd) {
+                const randomIndex = Math.floor(Math.random() * allMovies.length);
+                const randomMovie = allMovies[randomIndex];
+                if (!cinema.movies.includes(randomMovie)) {
+                    randomMovies.push(randomMovie);
+                }
+            }
+            await collection.updateOne({ _id: cinema._id }, { $set: { movies: randomMovies } });
+        }
+
+
+
+
+        res.status(200).send('Movies associated with cinemas successfully !');
+    } catch (error) {
+        console.error('Error associating movies with cinemas:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Fonction pour sélectionner aléatoirement un nombre donné d'éléments dans un tableau
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);

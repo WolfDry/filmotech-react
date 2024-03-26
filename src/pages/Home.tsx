@@ -200,14 +200,16 @@ export default function Home() {
       console.log(range);
       getMovieByLocationAndRange(location, range).then(data => {
        console.log(data);
+       console.log("data");
 
 
-        const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
+        // const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
         const queryParams = new URLSearchParams(window.location.search);
         queryParams.set('page', "1");
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         queryParams.set('loc', location.latitude + '-' + location.longitude);
-        window.location.href = url + '?' + queryParams.toString();
+        // window.location.href = url + '?' + queryParams.toString();
       }).catch(err => console.error(err));
     }
   }
