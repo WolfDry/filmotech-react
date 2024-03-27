@@ -43,24 +43,35 @@ app.post('/api/movie-in-range', async (req, res) => {
     const db = client.db();
     const locationUser = req.body.location;
     const range = req.body.range;
+    const page = parseInt(req.query.page) || 1; // Récupérer le numéro de page, par défaut 1
+    const pageSize =  20; // Récupérer la taille de la page, par défaut 20
     const collection = db.collection('cinema');
     const cinema = await collection.find({}).toArray();
     const cinemas = filterCinemasByDistance({ lat: parseFloat(locationUser.latitude), lon: parseFloat(locationUser.longitude) }, cinema, range);
-    const  Cmovies = []
+    const movies = [];
+
     for (const cinema of cinemas) {
         for (const movie of cinema.movies) {
+
             const movieWithCinemaInfo = {
                 cinema: {
                     _id: cinema._id,
                     name: cinema.name,
                 },
-                movie: movie
+                movie: movie,
             };
-            Cmovies.push(movieWithCinemaInfo);
+            movies.push(movieWithCinemaInfo);
         }
     }
-    // ajouter pagination
-    res.json(Cmovies);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = page * pageSize;
+    const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
+    res.json({
+        totalMovies: movies.length,
+        totalPages: Math.ceil(movies.length / pageSize),
+        currentPage: page,
+        movies: paginatedMovies
+    });
 });
 function haversineDistance(lat1, lon1, lat2, lon2) {
     const toRadians = (angle) => angle * (Math.PI / 180);
@@ -130,20 +141,17 @@ app.post('/api/comment/insert', async (req, res) => {
 });
 
 
-
 app.get('/associate-movies-to-cinemas', async (req, res) => {
     try {
         const db = client.db();
-        // Récupérer tous les cinémas depuis la base de données MongoDB
         const collection = db.collection('cinema');
         const cinemas = await collection.find({}).toArray();
-
-        // Récupérer les films depuis la base de données externe
-
-        console.log(cinemas);
-        const allMovies = []; // Stocker tous les films récupérés
+        // const comments = await collectiond.find({}).toArray();
+        console.log(cinemas[0]);
+        //
+        const allMovies = [];
         for (let i = 1; i < 500; i++) {
-            console.log(i);
+            console.log('Fetching page', i);
             const response = await fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=fr-FR&page=${i}`, {
                 method: 'GET',
                 headers: {
@@ -153,23 +161,41 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
             });
             const { results: movies } = await response.json();
             allMovies.push(...movies);
+            console.log('Total movies fetched:', allMovies.length);
         }
 
         for (const cinema of cinemas) {
             const randomMovies = [];
             const moviesToAdd = Math.min(15, allMovies.length); // Nombre maximum de films à ajouter
-            while (randomMovies.length < moviesToAdd) {
+            const movieIdsToAdd = new Set();
+            for (let index = 0; index < moviesToAdd.length; index++) {
                 const randomIndex = Math.floor(Math.random() * allMovies.length);
                 const randomMovie = allMovies[randomIndex];
-                if (!cinema.movies.includes(randomMovie)) {
-                    randomMovies.push(randomMovie);
+                console.log(`Processing movie ${index + 1}/${allMovies.length}`);
+                if (!cinema.movies.find(movie => movie.tmdb_id === randomMovie.id) && !movieIdsToAdd.has(randomMovie.id)) {
+                    try {
+                        const tmdbResponse = await fetch(`https://api.themoviedb.org/3/movie/${randomMovie.id}?language=fr-FR&append_to_response=external_ids`, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZTg4NzNlMzRlZTE2Yjg2MTJhYjU0YmVhNTEyOGY3MSIsInN1YiI6IjY1YzBlOGRlNWUxMjAwMDE4MjFjYzk0ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.E4QvWPT3SBchnzpCLiaIJ-3c3ucRfWvCewJtXiFEQqU',
+                            },
+                        });
+                        const tmdbData = await tmdbResponse.json();
+                        const genreNames = tmdbData.genres ? tmdbData.genres.map(genre => genre.name) : [];
+                        randomMovies.push({
+                            ...randomMovie,
+                            genre_names: genreNames,
+                            external_id: tmdbData.imdb_id
+                        });
+                        movieIdsToAdd.add(randomMovie.id);
+                    } catch (error) {
+                        console.error("Error fetching movie details from TMDb:", error);
+                    }
                 }
             }
             await collection.updateOne({ _id: cinema._id }, { $set: { movies: randomMovies } });
         }
-
-
-
 
         res.status(200).send('Movies associated with cinemas successfully !');
     } catch (error) {
@@ -177,6 +203,53 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+// app.get('/associate-movies-to-cinemas', async (req, res) => {
+//     try {
+//         const db = client.db();
+//         // Récupérer tous les cinémas depuis la base de données MongoDB
+//         const collection = db.collection('cinema');
+//         const cinemas = await collection.find({}).toArray();
+//
+//         // Récupérer les films depuis la base de données externe
+//
+//         console.log(cinemas);
+//         const allMovies = []; // Stocker tous les films récupérés
+//         for (let i = 1; i < 500; i++) {
+//             console.log(i);
+//             const response = await fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=fr-FR&page=${i}`, {
+//                 method: 'GET',
+//                 headers: {
+//                     'Accept': 'application/json',
+//                     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZTg4NzNlMzRlZTE2Yjg2MTJhYjU0YmVhNTEyOGY3MSIsInN1YiI6IjY1YzBlOGRlNWUxMjAwMDE4MjFjYzk0ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.E4QvWPT3SBchnzpCLiaIJ-3c3ucRfWvCewJtXiFEQqU',
+//                 },
+//             });
+//             const { results: movies } = await response.json();
+//             allMovies.push(...movies);
+//         }
+//
+//         for (const cinema of cinemas) {
+//             const randomMovies = [];
+//             const moviesToAdd = Math.min(15, allMovies.length); // Nombre maximum de films à ajouter
+//             while (randomMovies.length < moviesToAdd) {
+//                 const randomIndex = Math.floor(Math.random() * allMovies.length);
+//                 const randomMovie = allMovies[randomIndex];
+//                 if (!cinema.movies.includes(randomMovie)) {
+//                     randomMovies.push(randomMovie);
+//                 }
+//             }
+//             await collection.updateOne({ _id: cinema._id }, { $set: { movies: randomMovies } });
+//         }
+//
+//
+//
+//
+//         res.status(200).send('Movies associated with cinemas successfully !');
+//     } catch (error) {
+//         console.error('Error associating movies with cinemas:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 // Fonction pour sélectionner aléatoirement un nombre donné d'éléments dans un tableau
 

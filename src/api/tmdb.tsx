@@ -69,8 +69,8 @@ export const getMovieByLocationAndRange = async (locationUser: { latitude: strin
   };
   try {
     const response = await fetch('http://localhost:3000/api/movie-in-range', options);
-    const cinemaData = await response.json();
-    return cinemaData;
+    console.log(response);
+    return await response.json();
   }
   catch (err) {
     console.error(err);
