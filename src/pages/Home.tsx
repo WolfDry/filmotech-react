@@ -65,12 +65,14 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState('');
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState({latitude: "", longitude: ""});
   const [error, setError] = useState(null);
   const [range, setRange] = useState(1);
   const [sort, setSort] = useState('popularity.desc');
   const [choosenGenre, setChooserGenre] = useState<number[]>([]);
   const [cGenre, setcGenre] = useState<number[]>([]);
+  const [showGenre, setShowGenre] = useState(true);
+  const [showSort, setShowSort] = useState(true);
   useEffect(() => {
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -80,6 +82,7 @@ export default function Home() {
     const sortParam = urlParams.get('sort');
     const genreParams = urlParams.get('genres');
     const locParam = urlParams.get('loc');
+    const rangeParam = urlParams.get('range');
     const searchTermUrl = query ? query : '';
     setPage(page);
     setSearchTerm(searchTermUrl);
@@ -89,12 +92,20 @@ export default function Home() {
     }
     if (locParam) {
       const loc = locParam.split('-');
-      setLocation({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        latitude: parseFloat(loc[0]),
-        longitude: parseFloat(loc[1]),
-      });
+      if (rangeParam != null) {
+        setLoading(true)
+        console.log(location);
+        getMovieByLocationAndRange({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam)).then(data => {
+          setTotalPages(data.totalPages);
+          setPage(1);
+          setMovies(data.movies);
+          setLoading(false);
+          console.log(data);
+
+        }).catch(err => console.error(err));
+      }
+
+
 
       // get movies by location
 
@@ -114,6 +125,8 @@ export default function Home() {
           setMovies(data.movies);
           console.log(data.movies);
           setTotalPages(data.totalPages);
+          setShowGenre(false);
+          setShowSort(false);
           setLoading(false);
         }
       }).catch(err => console.error(err));
@@ -196,20 +209,15 @@ export default function Home() {
   }
   function getMovieByLocation() {
     if (range > 0 && location != null) {
-      console.log(location);
-      console.log(range);
       getMovieByLocationAndRange(location, range).then(data => {
-       console.log(data);
-       console.log("data");
-
-
-        // const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
+        const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
         const queryParams = new URLSearchParams(window.location.search);
         queryParams.set('page', "1");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         queryParams.set('loc', location.latitude + '-' + location.longitude);
-        // window.location.href = url + '?' + queryParams.toString();
+        queryParams.set('range', range.toString());
+        window.location.href = url + '?' + queryParams.toString();
       }).catch(err => console.error(err));
     }
   }
@@ -272,6 +280,7 @@ export default function Home() {
                     className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white py-4 pb-6 shadow-xl">
                     <div className="flex items-center justify-between px-4">
                       <h2 className="text-lg font-medium text-gray-900">Filters</h2>
+
                       <button
                         type="button"
                         className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white hover:border-transparent p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-300"
@@ -291,7 +300,7 @@ export default function Home() {
                               <h3 className="-mx-2 -my-3 flow-root">
                                 <Disclosure.Button
                                   className="flex w-full items-center justify-between border-transparent border-[1px] border-solid hover:border-transparent bg-white px-2 py-3 text-sm text-gray-400">
-                                  <span className="font-medium text-gray-900">{section.name}</span>
+                                  <span className="font-medium text-gray-900">{section.name}d </span>
                                   <span className="ml-6 flex items-center">
                                 <ChevronDownIcon
                                   className={classNames(open ? '-rotate-180' : 'rotate-0', 'h-5 w-5 transform')}
@@ -311,43 +320,47 @@ export default function Home() {
 
                                       {option.value != null ?
                                         <>
-
-                                          <input
-                                            id={`filter-mobile-${section.id}-${optionIdx}`}
-                                            name={`${section.id}[]`}
-                                            defaultValue={option.value}
-                                            type="checkbox"
-                                            checked={cGenre.includes(option.value)}
-                                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                            // @ts-expect-error
-                                            onChange={(e) => handleCheckboxChange(e, {value: option.value})}
-                                            className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-500"
-                                          />
+                                        {showGenre &&
+                                            <>
+                                            <input
+                                                id={`filter-mobile-${section.id}-${optionIdx}`}
+                                                name={`${section.id}[]`}
+                                                defaultValue={option.value}
+                                                type="checkbox"
+                                                checked={cGenre.includes(option.value)}
+                                              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                              // @ts-expect-error
+                                                onChange={(e) => handleCheckboxChange(e, {value: option.value})}
+                                                className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-500"
+                                            />
                                           <label
-                                            htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
-                                            className="ml-3 text-sm text-gray-500"
-                                          >
-                                            {option.label}
-                                          </label>
+                                          htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
+                                        className="ml-3 text-sm text-gray-500"
+                                        >
+                                        {option.label}
+                                        </label>
+                                            </>
+                                      }
 
-                                        </>
-                                        :
-                                        <div className="block">
-                                          <div className="flex w-40 justify-center">
-                                            {location == null ?
-                                              <button
-                                                className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
-                                                onClick={handleFormSubmitloc}>
-                                                <MapPinIcon color={"black"} className="mr-2" width={25}/> Autour de moi
-                                              </button>
-                                              : ""}
-                                          </div>
 
-                                          {location && (
-                                            <div className=" ">
+                                    </>
+                                    :
+                                    <div className="block">
+                                    <div className="flex w-40 justify-center">
+                                  {location == null ?
+                                    <button
+                                    className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
+                                    onClick={handleFormSubmitloc}>
+                                  <MapPinIcon color={"black"} className="mr-2" width={25}/> Autour de moi
+                                </button>
+                                : ""}
+                              </div>
 
-                                              <label htmlFor="locationRange" className="text-gray-600 ">Cinémas à moins
-                                                de
+                              {location && (
+                                <div className=" ">
+
+                                  <label htmlFor="locationRange" className="text-gray-600 ">Cinémas à moins
+                                    de
                                                 :</label>
 
 
@@ -377,16 +390,17 @@ export default function Home() {
                                         </div>}
                                     </div>
                                   ))}
-                                  {section.id === 'genre' && (
+                                  {section.id === 'genre' && showGenre ?
                                   <button
                                     onClick={() => setcGenre([])}
                                     className="text-sm text-white">
                                     Réinitialiser
-                                  </button>
-                                    )}
+                                  </button> : ""
+                                    }
 
                                 </div>
                               </Disclosure.Panel>
+
                             </>
                           )}
                         </Disclosure>
@@ -408,6 +422,7 @@ export default function Home() {
                             <div className="flex items-center justify-between">
                             <Menu as="div" className="relative inline-block text-left">
                             <div>
+                              {showSort &&
                             <Menu.Button
                             className="group inline-flex justify-center border-[1px] border-solid border-transparent hover:border-yellow-300 text-sm font-medium text-gray-100 hover:text-gray-200">
                             Trier
@@ -416,6 +431,7 @@ export default function Home() {
                             aria-hidden="true"
                             />
                             </Menu.Button>
+                              }
                             </div>
 
                             <Transition
@@ -498,28 +514,32 @@ export default function Home() {
                               <div key={option.value} className="flex items-center">
                                 {option.value != null ?
                                   <>
-                                    <input
+                                    {showGenre &&
+                                      <>
+                                      <input
                                       id={`filter-${section.id}-${optionIdx}`}
-                                      name={`${section.id}[]`}
-                                      defaultValue={option.value}
-                                      checked={cGenre.includes(option.value)}
-                                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                      // @ts-expect-error
-                                      onChange={(e) => handleCheckboxChange(e, { value: option.value })}
-                                      type="checkbox"
-                                      className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-300"
-                                    />
-                                    <label
-                                      htmlFor={`filter-${section.id}-${optionIdx}`}
-                                      className="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900"
-                                    >
-                                      {option.label}
-                                    </label>
+                                    name={`${section.id}[]`}
+                                    defaultValue={option.value}
+                                    checked={cGenre.includes(option.value)}
+                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                    // @ts-expect-error
+                                    onChange={(e) => handleCheckboxChange(e, {value: option.value})}
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-300"
+                                  />
+                                  <label
+                                    htmlFor={`filter-${section.id}-${optionIdx}`}
+                                    className="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900"
+                                  >
+                                    {option.label}
+                                  </label>
+                                    </>
+                                }
                                   </>
                                   :
                                   <div className="block">
                                     <div className="flex w-40 justify-center">
-                                      {location == null ?
+                                      {location.latitude == '' || location.longitude == '' ?
                                         <button
                                           className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
                                           onClick={handleFormSubmitloc}>
@@ -528,7 +548,7 @@ export default function Home() {
                                         : ""}
 
                                     </div>
-                                    {location && (
+                                    {location.latitude != '' || location.longitude != '' ?
                                       <div className=" text-center">
 
                                         <label htmlFor="locationRange" className="text-gray-600 ">Cinémas à moins de
@@ -552,20 +572,20 @@ export default function Home() {
                                           </button>
                                         </div>
                                       </div>
-                                    )}
+                                    : ""}
                                     {error && <p className="text-gray-500 text-center">{error}</p>}
                                   </div>
 
                                 }
                               </div>
                             ))}
-                            {section.id === 'genre' && (
+                            {section.id === 'genre' && showGenre ?
                               <button
                                 onClick={() => setcGenre([])}
                                 className="text-sm text-white">
                                 Réinitialiser
-                              </button>
-                            )}
+                              </button> : ""
+                            }
                           </form>
 
                         </Popover.Panel>
