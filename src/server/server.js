@@ -43,7 +43,7 @@ app.post('/api/movie-in-range', async (req, res) => {
     const db = client.db();
     const locationUser = req.body.location;
     const range = req.body.range;
-    const page = parseInt(req.query.page) || 1; // Récupérer le numéro de page, par défaut 1
+    const page = parseInt(req.body.page) || 1; // Récupérer le numéro de page, par défaut 1
     const pageSize =  20; // Récupérer la taille de la page, par défaut 20
     const collection = db.collection('cinema');
     const cinema = await collection.find({}).toArray();
@@ -65,6 +65,8 @@ app.post('/api/movie-in-range', async (req, res) => {
     }
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
+      console.log(page);
+
     const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
     res.json({
         totalMovies: movies.length,
@@ -147,7 +149,6 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
         const collection = db.collection('cinema');
         const cinemas = await collection.find({}).toArray();
         // const comments = await collectiond.find({}).toArray();
-        console.log(cinemas[0]);
         //
         const allMovies = [];
         for (let i = 1; i < 500; i++) {
@@ -163,16 +164,17 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
             allMovies.push(...movies);
             console.log('Total movies fetched:', allMovies.length);
         }
-
-        for (const cinema of cinemas) {
+console.log("j'ai fini de fetcher les films");
+        // ajouter l'index au for
+        for (let index = 0; index < cinemas.length; index++) {
+            console.log(`Processing cinema ${cinemas[index].name} numero ${index} / ${cinemas.length}` );
             const randomMovies = [];
             const moviesToAdd = Math.min(15, allMovies.length); // Nombre maximum de films à ajouter
             const movieIdsToAdd = new Set();
-            for (let index = 0; index < moviesToAdd.length; index++) {
+            for (let index = 0; index < 15; index++) {
                 const randomIndex = Math.floor(Math.random() * allMovies.length);
                 const randomMovie = allMovies[randomIndex];
-                console.log(`Processing movie ${index + 1}/${allMovies.length}`);
-                if (!cinema.movies.find(movie => movie.tmdb_id === randomMovie.id) && !movieIdsToAdd.has(randomMovie.id)) {
+                console.log(`Processing movie ${index + 1}/15`);
                     try {
                         const tmdbResponse = await fetch(`https://api.themoviedb.org/3/movie/${randomMovie.id}?language=fr-FR&append_to_response=external_ids`, {
                             method: 'GET',
@@ -192,9 +194,9 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
                     } catch (error) {
                         console.error("Error fetching movie details from TMDb:", error);
                     }
-                }
             }
-            await collection.updateOne({ _id: cinema._id }, { $set: { movies: randomMovies } });
+            await collection.updateOne({ _id: cinemas[index]._id }, { $set: { movies: randomMovies } });
+            console.log(cinemas[index]);
         }
 
         res.status(200).send('Movies associated with cinemas successfully !');

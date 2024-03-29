@@ -74,7 +74,7 @@ export default function Home() {
   const [showGenre, setShowGenre] = useState(true);
   const [showSort, setShowSort] = useState(true);
   useEffect(() => {
-
+    setLoading(true)
     const urlParams = new URLSearchParams(window.location.search);
     const pageParam = urlParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
@@ -90,15 +90,22 @@ export default function Home() {
     if (genreParams) {
       setcGenre(genreParams.split('-').map(Number));
     }
-    if (locParam) {
+    if (locParam) { setLoading(true)
+      console.log(loading);
       const loc = locParam.split('-');
       if (rangeParam != null) {
-        setLoading(true)
-        console.log(location);
-        getMovieByLocationAndRange({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam)).then(data => {
+
+        // console.log(location);
+        getMovieByLocationAndRange({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam),page).then(data => {
           setTotalPages(data.totalPages);
-          setPage(1);
-          setMovies(data.movies);
+          const mov = [];
+          for (let i = 0; i < data.movies.length; i++) {
+            mov[i] = data.movies[i].movie
+            mov[i].cinemas = data.movies[i].cinemas
+          }
+          console.log(data.movies.length);
+          setPage(data.currentPage);
+          setMovies(mov);
           setLoading(false);
           console.log(data);
 
@@ -110,7 +117,7 @@ export default function Home() {
       // get movies by location
 
     }
-    if (searchTermUrl === '') {
+    if (searchTermUrl === '' && locParam == null) {
       get(page,sortParam? sortParam : sort,genreParams? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
           setMovies(data.movies);
@@ -119,7 +126,7 @@ export default function Home() {
         }
       }).catch(err => console.error(err));
     }
-    else {
+    else if (searchTermUrl != '' && locParam == null){
       getMovieByTitle(searchTermUrl, page,sortParam? sortParam : sort).then(data => {
         if (data && data.movies) {
           setMovies(data.movies);
@@ -166,7 +173,6 @@ export default function Home() {
         updatedGenres.splice(index, 1);
       }
     }
-
     queryParams.set('genres', updatedGenres.join('-'));
     window.location.href = url + '?' + queryParams.toString();
   };
@@ -189,6 +195,7 @@ export default function Home() {
     const queryParams = new URLSearchParams(window.location.search);
     queryParams.set('page', "1");
     queryParams.set('query', searchTerm);
+    queryParams.delete('loc');
     window.location.href = url + '?' + queryParams.toString();
   }
   const handleFormSubmitloc = (e: { preventDefault: () => void; }) => {
@@ -209,16 +216,14 @@ export default function Home() {
   }
   function getMovieByLocation() {
     if (range > 0 && location != null) {
-      getMovieByLocationAndRange(location, range).then(data => {
+
         const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
         const queryParams = new URLSearchParams(window.location.search);
         queryParams.set('page', "1");
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         queryParams.set('loc', location.latitude + '-' + location.longitude);
         queryParams.set('range', range.toString());
         window.location.href = url + '?' + queryParams.toString();
-      }).catch(err => console.error(err));
+
     }
   }
   const getLocation = async () => {

@@ -58,14 +58,14 @@ export const getMovieById = async (id: string) => {
     throw err;
   }
 };
-export const getMovieByLocationAndRange = async (locationUser: { latitude: string, longitude: string }, range: number) => {
+export const getMovieByLocationAndRange = async (locationUser: { latitude: string, longitude: string }, range: number,page:number) => {
   const options = {
     method: 'POST',
     headers: {
       accept: 'application',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ location: locationUser, range: range })
+    body: JSON.stringify({ location: locationUser, range: range,page:page })
   };
   try {
     const response = await fetch('http://localhost:3000/api/movie-in-range', options);
