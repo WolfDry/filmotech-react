@@ -94,7 +94,7 @@ export default function Home() {
       console.log(loading);
       const loc = locParam.split('-');
       if (rangeParam != null) {
-
+        setLocation({latitude: loc[0], longitude: loc[1]});
         // console.log(location);
         getMovieByLocationAndRange({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam),page).then(data => {
           setTotalPages(data.totalPages);
@@ -366,33 +366,40 @@ export default function Home() {
 
                                   <label htmlFor="locationRange" className="text-gray-600 ">Cinémas à moins
                                     de
-                                                :</label>
+                                    :</label>
 
 
-                                              <div className="block ">
-                                                <input className="w-full my-4"
-                                                       type="range"
-                                                       id="locationRange"
-                                                       name="locationRange"
-                                                       min="1"
-                                                       max="100"
-                                                       step="1"
-                                                       value={range}
-                                                       onChange={(e) => setRange(parseInt(e.target.value))}
-                                                  // onChange={handleRangeChange}
-                                                />
-                                                <p
-                                                  className="text-gray-500 pb-2">{range}{range > 1 ? " kms" : " km"}</p>
-                                              </div>
-                                              <button onClick={handleFormSubmitRange}
-                                                      className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
-                                                Rechercher
-                                              </button>
+                                  <div className="block ">
+                                    <input className="w-full my-4"
+                                           type="range"
+                                           id="locationRange"
+                                           name="locationRange"
+                                           min="1"
+                                           max="100"
+                                           step="1"
+                                           value={range}
+                                           onChange={(e) => setRange(parseInt(e.target.value))}
+                                      // onChange={handleRangeChange}
+                                    />
+                                    <p
+                                      className="text-gray-500 pb-2">{range}{range > 1 ? " kms" : " km"}</p>
+                                  </div>
+                                  <div className="block">
+                                  <button onClick={handleFormSubmitRange}
+                                          className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
+                                    Rechercher
+                                  </button>
+                                  <br/>
+                                  <button
+                                          className="pt-2 border-[1px] mt-2 text-yellow-300 text-sm border-solid border-transparent hover:border-yellow-300">
+                                    <a href="/" >Réinitialiser </a>
+                                  </button>
+                                  </div>
 
-                                            </div>
-                                          )}
-                                          {error && <p className="text-gray-500 text-center">{error}</p>}
-                                        </div>}
+                                </div>
+                              )}
+                                      {error && <p className="text-gray-500 text-center">{error}</p>}
+                                    </div>}
                                     </div>
                                   ))}
                                   {section.id === 'genre' && showGenre ?
@@ -571,13 +578,20 @@ export default function Home() {
                                             onChange={(e) => setRange(parseInt(e.target.value))}
                                             // onChange={handleRangeChange}
                                           />
-                                          <button onClick={handleFormSubmitRange}
-                                                  className="mt-2 border-[1px] border-solid border-transparent hover:border-yellow-300">
-                                            Rechercher
-                                          </button>
+                                          <div className="block">
+                                            <button onClick={handleFormSubmitRange}
+                                                    className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
+                                              Rechercher
+                                            </button>
+                                            <br/>
+                                            <button
+                                              className="pt-2 border-[1px] mt-2 text-yellow-300 text-sm border-solid border-transparent hover:border-yellow-300">
+                                              <a href="/">Réinitialiser </a>
+                                            </button>
+                                          </div>
                                         </div>
                                       </div>
-                                    : ""}
+                                      : ""}
                                     {error && <p className="text-gray-500 text-center">{error}</p>}
                                   </div>
 
