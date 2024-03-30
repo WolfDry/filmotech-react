@@ -58,18 +58,17 @@ export const getMovieById = async (id: string) => {
     throw err;
   }
 };
-export const getMovieByLocationAndRange = async (locationUser: { latitude: string, longitude: string }, range: number,page:number) => {
+export const getMovieByLocationAndRange = async (locationUser: { latitude: string, longitude: string }, range: number,page:number,genre : null|string) => {
   const options = {
     method: 'POST',
     headers: {
       accept: 'application',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ location: locationUser, range: range,page:page })
+    body: JSON.stringify({ location: locationUser, range: range,page:page, genre:genre })
   };
   try {
     const response = await fetch('http://localhost:3000/api/movie-in-range', options);
-    console.log(response);
     return await response.json();
   }
   catch (err) {
@@ -77,6 +76,26 @@ export const getMovieByLocationAndRange = async (locationUser: { latitude: strin
     throw err;
   }
 }
+
+export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitude: string, longitude: string }, range: number,page:number,query:null|string,genre :null|string) => {
+  const options = {
+    method: 'POST',
+    headers: {
+      accept: 'application',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ location: locationUser, range: range,page:page,query:query,genre:genre })
+  };
+  try {
+    const response = await fetch('http://localhost:3000/api/movie-in-range-recherche', options);
+    return await response.json();
+  }
+  catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 export const getMovieByTitle = async (title: string, page: number = 1, sort:string) => {
   const options = {
     method: 'GET',

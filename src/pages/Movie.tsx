@@ -5,6 +5,8 @@ import {getMovieById} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
 import Review from "../Components/Reviews.tsx";
 import noImage from '/no-image.jpg';
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from 'react-responsive-carousel';
 
 
 export default function MovieOnly() {
@@ -29,7 +31,7 @@ export default function MovieOnly() {
     }
   };
   const [movie, setMovie] = useState<Movie | null>(null);
-
+  const [cinemas, setCinemas] = useState([]);
   const {id} = useParams();
   const [reviews, setReviews] = useState([])
 
@@ -40,17 +42,26 @@ export default function MovieOnly() {
   }
 
   useEffect(() => {
-    // const availableVoices = window.speechSynthesis.getVoices(); // Choix des voix ?
-    // if (speakingInstance) {
-    //   speakingInstance.cancel();
-    // }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth" // Défilement en douceur
+    });
+    getCinemaName(id!)
     getMovieById(id!).then(data => {
       setMovie(data);
       getReviews(data.imdb_id)
     }).catch(err => console.error(err));
 
 
-  }, [id]);
+}, [id]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  async function getCinemaName(id: string) {
+    const response = await fetch(`http://localhost:3000/api/cinema-of-movie/${id}`);
+    const data = await response.json();
+    setCinemas(data);
+    console.log(data)
+  }
 
 
   function formateDate(dateString: string) {
@@ -132,10 +143,9 @@ export default function MovieOnly() {
                         );
                       })}
                     </div>
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-expect-error
-
                   </div>
+
+
                 </div>
                 {movie.overview == '' ?
                   <p className=" text-gray-900"> Aucune information sur le film</p> :
@@ -154,6 +164,7 @@ export default function MovieOnly() {
                     </div>
                   </>
                 }
+
                 <div className="mt-10 border-t border-gray-200 pt-10">
                   <h3 className="text-lg font-medium text-gray-900">Genre</h3>
                   {movie.genres.length < 1 ? <p className="text-gray-600"> Aucune information sur le genre</p> :
@@ -185,6 +196,21 @@ export default function MovieOnly() {
 
 
             </div>
+            <Carousel
+              autoPlay={true}
+              infiniteLoop={true}
+              showStatus={false}
+              showIndicators={false}
+            >
+              {cinemas.map((cinema :{name:string,adress:string,city:string,pc:string}) => (
+                <div className=" pt-3">
+                  <p className="text-lg font-bold text-gray-900">{cinema.name}</p>
+                  <p className="text-sm text-gray-500">{cinema.adress},</p>
+                  <p className="text-sm text-gray-500">{cinema.city},</p>
+                  <p className="text-sm text-gray-500">{cinema.pc}</p>
+                </div>
+              ))}
+            </Carousel>
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h3 className="text-lg font-medium text-gray-900">Production </h3>
               <div className="prose prose-sm mt-4 text-gray-500">

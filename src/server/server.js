@@ -30,7 +30,77 @@ app.use(bodyParser.json({ limit: '50mb' })); // Adjust the limit according to yo
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(cors(corsOptions));
+app.post('/api/movie-in-range-recherche', async (req, res) => {
+    const db = client.db();
+    const locationUser = req.body.location;
+    const range = req.body.range;
+    const query = req.body.query;
+    const page = parseInt(req.body.page) || 1;
+    const genre = req.body.genre || [];
+    let genreIdsSplitted = [];
+    if(genre.length > 0) {
+         genreIdsSplitted = genre.split('-');
+        for (let i = 0; i < genreIdsSplitted.length; i++) {
+            genreIdsSplitted[i] = parseInt(genreIdsSplitted[i]);
+        }
+    }
+    const pageSize =  20;
+    const collection = db.collection('cinema');
+    const regexQuery = escapeRegExp(query);
+    const cinema = await collection.find({ 'movies.title': { $regex: regexQuery, $options: 'i' } }).toArray();
+    const cinemas = filterCinemasByDistance({ lat: parseFloat(locationUser.latitude), lon: parseFloat(locationUser.longitude) }, cinema, range);
+    const movies = [];
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    for (const cinema of cinemas) {
+        for (const movie of cinema.movies) {
+            const movieTitle = movie.title || ''; // Assurez-vous que le titre existe
+            if (new RegExp(query, 'i').test(movieTitle)) {
+                if (genreIdsSplitted.length > 0) {
+                    if (movie.genre_ids.some(id => genreIdsSplitted.includes(id))) {
+                        const movieWithCinemaInfo = {
+                            cinema: {
+                                _id: cinema._id,
+                                name: cinema.name,
+                            },
+                            movie: movie,
+                        };
+                        movies.push(movieWithCinemaInfo);
+                    }
+                }
+                else {
+                    const movieWithCinemaInfo = {
+                        cinema: {
+                            _id: cinema._id,
+                            name: cinema.name,
+                        },
+                        movie: movie,
+                    };
+                    movies.push(movieWithCinemaInfo);
+                }
+            }
+        }
+    }
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = page * pageSize;
+    const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
+    res.json({
+        totalMovies: movies.length,
+        totalPages: Math.ceil(movies.length / pageSize),
+        currentPage: page,
+        movies: paginatedMovies
+    });
 
+});
+app.get('/api/cinema-of-movie/:id', async (req, res) => {
+    const db = client.db();
+    const id = req.params.id;
+    const cinema = await db.collection('cinema').find(
+        { 'movies.external_id': id }
+    ).toArray();
+    res.json(cinema);
+});
 // Example route to fetch data from MongoDB
 app.get('/api/cinema/get', async (req, res) => {
     const db = client.db();
@@ -43,6 +113,14 @@ app.post('/api/movie-in-range', async (req, res) => {
     const db = client.db();
     const locationUser = req.body.location;
     const range = req.body.range;
+    const genre = req.body.genre || [];
+    let genreIdsSplitted = [];
+    if(genre.length > 0) {
+        genreIdsSplitted = genre.split('-');
+        for (let i = 0; i < genreIdsSplitted.length; i++) {
+            genreIdsSplitted[i] = parseInt(genreIdsSplitted[i]);
+        }
+    }
     const page = parseInt(req.body.page) || 1; // Récupérer le numéro de page, par défaut 1
     const pageSize =  20; // Récupérer la taille de la page, par défaut 20
     const collection = db.collection('cinema');
@@ -52,20 +130,31 @@ app.post('/api/movie-in-range', async (req, res) => {
 
     for (const cinema of cinemas) {
         for (const movie of cinema.movies) {
-
-            const movieWithCinemaInfo = {
-                cinema: {
-                    _id: cinema._id,
-                    name: cinema.name,
-                },
-                movie: movie,
-            };
-            movies.push(movieWithCinemaInfo);
+            if (genreIdsSplitted.length > 0) {
+                if (movie.genre_ids.some(id => genreIdsSplitted.includes(id))) {
+                    const movieWithCinemaInfo = {
+                        cinema: {
+                            _id: cinema._id,
+                            name: cinema.name,
+                        },
+                        movie: movie,
+                    };
+                    movies.push(movieWithCinemaInfo);
+                }
+            }else {
+                const movieWithCinemaInfo = {
+                    cinema: {
+                        _id: cinema._id,
+                        name: cinema.name,
+                    },
+                    movie: movie,
+                };
+                movies.push(movieWithCinemaInfo);
+            }
         }
     }
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
-      console.log(page);
 
     const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
     res.json({
@@ -164,7 +253,7 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
             allMovies.push(...movies);
             console.log('Total movies fetched:', allMovies.length);
         }
-console.log("j'ai fini de fetcher les films");
+        console.log("j'ai fini de fetcher les films");
         // ajouter l'index au for
         for (let index = 0; index < cinemas.length; index++) {
             console.log(`Processing cinema ${cinemas[index].name} numero ${index} / ${cinemas.length}` );
@@ -196,7 +285,7 @@ console.log("j'ai fini de fetcher les films");
                     }
             }
             await collection.updateOne({ _id: cinemas[index]._id }, { $set: { movies: randomMovies } });
-            console.log(cinemas[index]);
+            // console.log(cinemas[index]);
         }
 
         res.status(200).send('Movies associated with cinemas successfully !');
@@ -205,55 +294,6 @@ console.log("j'ai fini de fetcher les films");
         res.status(500).send('Internal Server Error');
     }
 });
-
-// app.get('/associate-movies-to-cinemas', async (req, res) => {
-//     try {
-//         const db = client.db();
-//         // Récupérer tous les cinémas depuis la base de données MongoDB
-//         const collection = db.collection('cinema');
-//         const cinemas = await collection.find({}).toArray();
-//
-//         // Récupérer les films depuis la base de données externe
-//
-//         console.log(cinemas);
-//         const allMovies = []; // Stocker tous les films récupérés
-//         for (let i = 1; i < 500; i++) {
-//             console.log(i);
-//             const response = await fetch(`https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=fr-FR&page=${i}`, {
-//                 method: 'GET',
-//                 headers: {
-//                     'Accept': 'application/json',
-//                     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZTg4NzNlMzRlZTE2Yjg2MTJhYjU0YmVhNTEyOGY3MSIsInN1YiI6IjY1YzBlOGRlNWUxMjAwMDE4MjFjYzk0ZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.E4QvWPT3SBchnzpCLiaIJ-3c3ucRfWvCewJtXiFEQqU',
-//                 },
-//             });
-//             const { results: movies } = await response.json();
-//             allMovies.push(...movies);
-//         }
-//
-//         for (const cinema of cinemas) {
-//             const randomMovies = [];
-//             const moviesToAdd = Math.min(15, allMovies.length); // Nombre maximum de films à ajouter
-//             while (randomMovies.length < moviesToAdd) {
-//                 const randomIndex = Math.floor(Math.random() * allMovies.length);
-//                 const randomMovie = allMovies[randomIndex];
-//                 if (!cinema.movies.includes(randomMovie)) {
-//                     randomMovies.push(randomMovie);
-//                 }
-//             }
-//             await collection.updateOne({ _id: cinema._id }, { $set: { movies: randomMovies } });
-//         }
-//
-//
-//
-//
-//         res.status(200).send('Movies associated with cinemas successfully !');
-//     } catch (error) {
-//         console.error('Error associating movies with cinemas:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
-
-// Fonction pour sélectionner aléatoirement un nombre donné d'éléments dans un tableau
 
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
