@@ -1,7 +1,13 @@
 import CardMovie from '../Components/CardMovie.tsx'
 import Pagination from '../Components/Pagination.tsx'
 import {useEffect, useState} from 'react'
-import {get, getGenre, getMovieByLocationAndRange, getMovieByTitle} from "../api/tmdb.tsx";
+import {
+  get,
+  getGenre,
+  getMovieByLocationAndRange,
+  getMovieByLocationAndRangeAndQuery,
+  getMovieByTitle
+} from "../api/tmdb.tsx";
 import {Movie} from "../interface/Movie.tsx";
 import {Production} from "../interface/Production.tsx";
 import {Genre} from "../interface/Genre.tsx";
@@ -84,40 +90,32 @@ export default function Home() {
     const locParam = urlParams.get('loc');
     const rangeParam = urlParams.get('range');
     const searchTermUrl = query ? query : '';
-    setPage(page);
-    setSearchTerm(searchTermUrl);
-    setSort(sortParam? sortParam : sort);
     if (genreParams) {
       setcGenre(genreParams.split('-').map(Number));
     }
-    if (locParam) { setLoading(true)
-      console.log(loading);
+    console.log(genreParams);
+    setPage(page);
+    setSearchTerm(searchTermUrl);
+    setSort(sortParam? sortParam : sort);
+
+     if (locParam && searchTermUrl =='') { setLoading(true)
       const loc = locParam.split('-');
       if (rangeParam != null) {
         setLocation({latitude: loc[0], longitude: loc[1]});
-        // console.log(location);
-        getMovieByLocationAndRange({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam),page).then(data => {
+        getMovieByLocationAndRange({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam),page,genreParams).then(data => {
           setTotalPages(data.totalPages);
           const mov = [];
           for (let i = 0; i < data.movies.length; i++) {
             mov[i] = data.movies[i].movie
             mov[i].cinemas = data.movies[i].cinemas
           }
-          console.log(data.movies.length);
           setPage(data.currentPage);
           setMovies(mov);
           setLoading(false);
-          console.log(data);
-
         }).catch(err => console.error(err));
       }
-
-
-
-      // get movies by location
-
     }
-    if (searchTermUrl === '' && locParam == null) {
+    else if (searchTermUrl === '' && locParam == null) {
       get(page,sortParam? sortParam : sort,genreParams? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
           setMovies(data.movies);
@@ -127,10 +125,12 @@ export default function Home() {
       }).catch(err => console.error(err));
     }
     else if (searchTermUrl != '' && locParam == null){
+       if (genreParams) {
+         setcGenre(genreParams.split('-').map(Number));
+       }
       getMovieByTitle(searchTermUrl, page,sortParam? sortParam : sort).then(data => {
         if (data && data.movies) {
           setMovies(data.movies);
-          console.log(data.movies);
           setTotalPages(data.totalPages);
           setShowGenre(false);
           setShowSort(false);
@@ -138,18 +138,35 @@ export default function Home() {
         }
       }).catch(err => console.error(err));
     }
+    else if (searchTermUrl != '' && locParam != null){
+      const loc = locParam.split('-');
+      if (rangeParam != null) {
+        setLocation({latitude: loc[0], longitude: loc[1]});
+        if (genreParams) {
+          setcGenre(genreParams.split('-').map(Number));
+        }
+        console.log(cGenre)
+        getMovieByLocationAndRangeAndQuery({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam),page,query,genreParams).then(data => {
+          setTotalPages(data.totalPages);
+          const mov = [];
+          for (let i = 0; i < data.movies.length; i++) {
+            mov[i] = data.movies[i].movie
+            mov[i].cinemas = data.movies[i].cinemas
+          }
+          setPage(data.currentPage);
+          setMovies(mov);
+          setLoading(false);
+        }).catch(err => console.error(err));
+      }
+    }
     getGenre().then(data => {
-      // if (data && data.genre) {
-        console.log(data);
       filters[1].options = data.genres.map((genre: { id: never; name: never; }) => {
         return { value: genre.id, label: genre.name }
       });
-      // }
     }).catch(err => console.error(err));
   }, [sort,choosenGenre]);
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, option: { value: number }) => {
     const isChecked = e.target.checked;
-
     setChooserGenre((prevGenres) => {
       if (isChecked) {
         return [...prevGenres, option.value];
@@ -188,7 +205,12 @@ export default function Home() {
   }
   const handleFormSubmitSearch = (e: { preventDefault: () => void; }) => {
     e.preventDefault(); // Prevents the default form submission behavior
-    handleSearchButtonClick();
+    if (location.latitude === "" && location.longitude === "") {
+      handleSearchButtonClick();
+    }
+    else {
+      handleSearchLocButtonClick();
+    }
   };
   function handleSearchButtonClick() {
     const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
@@ -196,6 +218,14 @@ export default function Home() {
     queryParams.set('page', "1");
     queryParams.set('query', searchTerm);
     queryParams.delete('loc');
+    window.location.href = url + '?' + queryParams.toString();
+  }
+
+  function handleSearchLocButtonClick() {
+    const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
+    const queryParams = new URLSearchParams(window.location.search);
+    queryParams.set('page', "1");
+    queryParams.set('query', searchTerm);
     window.location.href = url + '?' + queryParams.toString();
   }
   const handleFormSubmitloc = (e: { preventDefault: () => void; }) => {
@@ -252,6 +282,7 @@ export default function Home() {
       setError('Geolocation is not supported in this browser.');
     }
   };
+
   return (
     <>
 
@@ -298,14 +329,26 @@ export default function Home() {
 
                     {/* Filters */}
                     <form className="mt-4">
-                      {filters.map((section) => (
+                      {filters.map((section,sectionIdx) => (
                         <Disclosure as="div" key={section.name} className="border-t border-gray-200 px-4 py-6">
                           {({open}) => (
                             <>
                               <h3 className="-mx-2 -my-3 flow-root">
                                 <Disclosure.Button
                                   className="flex w-full items-center justify-between border-transparent border-[1px] border-solid hover:border-transparent bg-white px-2 py-3 text-sm text-gray-400">
-                                  <span className="font-medium text-gray-900">{section.name}d </span>
+                                  <span className="font-medium text-gray-900">{section.name} </span>
+                                  {location.latitude != "" && sectionIdx == 0 ? (
+                                    <span
+                                      className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
+                          1
+                        </span>
+                                  ) : null}
+                                  {cGenre.length != 0 && sectionIdx == 1 ? (
+                                    <span
+                                      className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
+                          {cGenre.length}
+                        </span>
+                                  ) : null}
                                   <span className="ml-6 flex items-center">
                                 <ChevronDownIcon
                                   className={classNames(open ? '-rotate-180' : 'rotate-0', 'h-5 w-5 transform')}
@@ -352,7 +395,7 @@ export default function Home() {
                                     :
                                     <div className="block">
                                     <div className="flex w-40 justify-center">
-                                  {location == null ?
+                                  {location.latitude == "" ?
                                     <button
                                     className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
                                     onClick={handleFormSubmitloc}>
@@ -361,7 +404,7 @@ export default function Home() {
                                 : ""}
                               </div>
 
-                              {location && (
+                              {location.latitude && (
                                 <div className=" ">
 
                                   <label htmlFor="locationRange" className="text-gray-600 ">Cinémas à moins
@@ -497,10 +540,16 @@ export default function Home() {
                         <Popover.Button
                           className="group inline-flex items-center justify-center border-[1px] border-solid border-transparent hover:border-yellow-300 text-sm font-medium text-gray-100 hover:text-gray-200">
                           <span>{section.name}</span>
-                          {location != null && sectionIdx == 0 ? (
+                          {location.latitude != "" && sectionIdx == 0 ? (
                             <span
                               className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
                           1
+                        </span>
+                          ) : null}
+                          {cGenre.length != 0 && sectionIdx == 1 ? (
+                            <span
+                              className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
+                          {cGenre.length}
                         </span>
                           ) : null}
                           <ChevronDownIcon
@@ -619,7 +668,25 @@ export default function Home() {
         </div>
         {movies.length == 0 ?
           <>
-            <p className="text-gray-50">Aucuns films disponible...</p>
+            <div className="flex w-max-[1000px]">
+              <input
+                onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                id="search"
+                name="search"
+                className="block w-full rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-300 sm:text-sm sm:leading-6"
+                placeholder="Rechercher un film..."
+                type="search"
+              />
+              <button
+                onClick={handleFormSubmitSearch}
+                type="button"
+                className="flex w-32 justify-center  text-center ml-1  gap-x-2 rounded-md bg-yellow-300 px-3.5 py-2.5 text-sm font-semibold text-gray-800 shadow-sm hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:border-yellow-300 focus-visible:outline-yellow-300"
+              >
+                Rechercher
+              </button>
+            </div>
+            <p className="text-gray-50 pt-2">Aucuns films disponible...</p>
             <a
               href="/"
               className="mt-6 cursor-pointer inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
@@ -651,7 +718,7 @@ export default function Home() {
                             type="search"
                           />
                           <button
-                            onClick={handleSearchButtonClick}
+                            onClick={handleFormSubmitSearch}
                             type="button"
                             className="flex w-32 justify-center  text-center ml-1  gap-x-2 rounded-md bg-yellow-300 px-3.5 py-2.5 text-sm font-semibold text-gray-800 shadow-sm hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:border-yellow-300 focus-visible:outline-yellow-300"
                           >
@@ -667,6 +734,8 @@ export default function Home() {
 
                 <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                   {movies && movies.map((movie: Imovie, index) => (
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-expect-error
                     <><CardMovie key={index} movie={movie}/> </>
                   ))}
                 </ul>

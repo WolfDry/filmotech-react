@@ -16,5 +16,6 @@ export type Movie = {
     overview: string,
     vote_count: number,
     genres: Genre[],
-    external_id: number
+    external_id: number,
+    cinemas: null | string,
 }

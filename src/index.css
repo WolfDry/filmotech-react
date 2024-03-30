@@ -25,6 +25,15 @@ a {
 a:hover {
     color: #fbd000;
 }
+.carousel.carousel-slider .control-arrow{
+    background: #f3d746;
+    color: #f3d746;
+    margin:  20px 0;
+}
+.carousel.carousel-slider .control-arrow:hover{
+    background: #fbd000;
+    color: #fbd000;
+}
 
 .body {
 
