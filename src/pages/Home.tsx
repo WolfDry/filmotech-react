@@ -79,8 +79,12 @@ export default function Home() {
   const [cGenre, setcGenre] = useState<number[]>([]);
   const [showGenre, setShowGenre] = useState(true);
   const [showSort, setShowSort] = useState(true);
+
+  const [genresLoaded, setGenresLoaded] = useState(false);
+  const [moviesLoaded, setMoviesLoaded] = useState(false);
+
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     const urlParams = new URLSearchParams(window.location.search);
     const pageParam = urlParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
@@ -90,19 +94,21 @@ export default function Home() {
     const locParam = urlParams.get('loc');
     const rangeParam = urlParams.get('range');
     const searchTermUrl = query ? query : '';
+
     if (genreParams) {
       setcGenre(genreParams.split('-').map(Number));
     }
     console.log(genreParams);
     setPage(page);
     setSearchTerm(searchTermUrl);
-    setSort(sortParam? sortParam : sort);
+    setSort(sortParam ? sortParam : sort);
 
-     if (locParam && searchTermUrl =='') { setLoading(true)
+    if (locParam && searchTermUrl === '') {
+      setLoading(true);
       const loc = locParam.split('-');
       if (rangeParam != null) {
-        setLocation({latitude: loc[0], longitude: loc[1]});
-        getMovieByLocationAndRange({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam),page,genreParams).then(data => {
+        setLocation({ latitude: loc[0], longitude: loc[1] });
+        getMovieByLocationAndRange({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, genreParams, sort).then(data => {
           setTotalPages(data.totalPages);
           const mov = [];
           for (let i = 0; i < data.movies.length; i++) {
@@ -116,7 +122,7 @@ export default function Home() {
       }
     }
     else if (searchTermUrl === '' && locParam == null) {
-      get(page,sortParam? sortParam : sort,genreParams? genreParams.split('-').map(Number).toString() : '').then(data => {
+      get(page, sortParam ? sortParam : sort, genreParams ? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
           setMovies(data.movies);
           setTotalPages(data.totalPages);
@@ -124,11 +130,11 @@ export default function Home() {
         }
       }).catch(err => console.error(err));
     }
-    else if (searchTermUrl != '' && locParam == null){
-       if (genreParams) {
-         setcGenre(genreParams.split('-').map(Number));
-       }
-      getMovieByTitle(searchTermUrl, page,sortParam? sortParam : sort).then(data => {
+    else if (searchTermUrl !== '' && locParam == null) {
+      if (genreParams) {
+        setcGenre(genreParams.split('-').map(Number));
+      }
+      getMovieByTitle(searchTermUrl, page, sortParam ? sortParam : sort).then(data => {
         if (data && data.movies) {
           setMovies(data.movies);
           setTotalPages(data.totalPages);
@@ -138,15 +144,15 @@ export default function Home() {
         }
       }).catch(err => console.error(err));
     }
-    else if (searchTermUrl != '' && locParam != null){
+    else if (searchTermUrl !== '' && locParam !== null) {
       const loc = locParam.split('-');
       if (rangeParam != null) {
-        setLocation({latitude: loc[0], longitude: loc[1]});
+        setLocation({ latitude: loc[0], longitude: loc[1] });
         if (genreParams) {
           setcGenre(genreParams.split('-').map(Number));
         }
         console.log(cGenre)
-        getMovieByLocationAndRangeAndQuery({latitude:parseFloat(loc[0]).toString(), longitude:parseFloat(loc[1]).toString() }, parseInt(rangeParam),page,query,genreParams).then(data => {
+        getMovieByLocationAndRangeAndQuery({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, query, genreParams, sort).then(data => {
           setTotalPages(data.totalPages);
           const mov = [];
           for (let i = 0; i < data.movies.length; i++) {
@@ -159,12 +165,25 @@ export default function Home() {
         }).catch(err => console.error(err));
       }
     }
-    getGenre().then(data => {
-      filters[1].options = data.genres.map((genre: { id: never; name: never; }) => {
-        return { value: genre.id, label: genre.name }
-      });
-    }).catch(err => console.error(err));
-  }, [sort,choosenGenre]);
+  }, [sort, choosenGenre]);
+
+  useEffect(() => {
+    setLoading(true);
+    if (!genresLoaded) {
+      getGenre()
+        .then(data => {
+          filters[1].options = data.genres.map((genre: { id: never; name: never; }) => {
+            return { value: genre.id, label: genre.name }
+          });
+          setGenresLoaded(true);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLoading(false);
+        });
+    }
+  }, []);
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, option: { value: number }) => {
     const isChecked = e.target.checked;
     setChooserGenre((prevGenres) => {
