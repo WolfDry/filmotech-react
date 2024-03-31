@@ -35,6 +35,7 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
     const locationUser = req.body.location;
     const range = req.body.range;
     const query = req.body.query;
+    const sort = req.body.sort;
     const page = parseInt(req.body.page) || 1;
     const genre = req.body.genre || [];
     let genreIdsSplitted = [];
@@ -82,6 +83,25 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
             }
         }
     }
+    function customSort(a, b) {
+        console.log(sort);
+        switch (sort) {
+            case 'vote_average.desc':
+                return  a.movie.vote_average - b.movie.vote_average;
+            case 'title.asc':
+                return b.movie.title - a.movie.title;
+            case 'title.desc':
+                return a.movie.title - b.movie.title;
+            case 'release_date.asc':
+                return new Date(a.movie.release_date) - new Date(b.movie.release_date);
+            case'primary_release_date.desc':
+                return new Date(b.movie.release_date) - new Date(a.movie.release_date);
+            default:
+                return a.movie.popularity - b.movie.popularity ;
+        }
+    }
+
+    movies.sort(customSort);
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
     const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
@@ -113,6 +133,8 @@ app.post('/api/movie-in-range', async (req, res) => {
     const db = client.db();
     const locationUser = req.body.location;
     const range = req.body.range;
+    const sort = req.body.sort;
+    console.log(sort);
     const genre = req.body.genre || [];
     let genreIdsSplitted = [];
     if(genre.length > 0) {
@@ -153,6 +175,26 @@ app.post('/api/movie-in-range', async (req, res) => {
             }
         }
     }
+
+    function customSort(a, b) {
+        console.log(sort);
+        switch (sort) {
+            case 'vote_average.desc':
+                return  a.movie.vote_average - b.movie.vote_average;
+            case 'title.asc':
+                return b.movie.title - a.movie.title;
+            case 'title.desc':
+                return a.movie.title - b.movie.title;
+            case 'release_date.asc':
+                return new Date(a.movie.release_date) - new Date(b.movie.release_date);
+            case'primary_release_date.desc':
+                return new Date(b.movie.release_date) - new Date(a.movie.release_date);
+            default:
+                return a.movie.popularity - b.movie.popularity ;
+        }
+    }
+
+    movies.sort(customSort);
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
