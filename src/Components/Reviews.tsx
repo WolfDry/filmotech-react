@@ -132,21 +132,17 @@ const Reviews = ({ movie }: Imovie) => {
                 })}
               </div>
             </div>
-            <p className="ml-2 text-sm text-gray-900">Basé sur {movie.vote_count + reviews.length } Critiques</p>
-
+            <p className="ml-2 text-sm text-gray-900">Basé sur {movie.vote_count + reviews.length} Critiques</p>
           </div>
-
           <div className="mt-10">
-
             <h3 className="text-lg font-medium text-gray-900">Partagez vos pensées</h3>
             <p className="mt-1  text-sm text-gray-600">
               Partagez vos avis et critiques sur ce film
             </p>
             {
               error &&
-              <Error erreur={error}/>
+              <Error erreur={error} />
             }
-
             <div className={`${formCommentIsOpen ? '' : 'hidden'}`}>
               <form action="#" method="POST">
                 <div className="my-2 flex justify-center">
@@ -238,9 +234,9 @@ const Reviews = ({ movie }: Imovie) => {
             </div>
             {
               success &&
-                <div className="mt-4">
-                    <Succes succes={success} />
-                </div>
+              <div className="mt-4">
+                <Succes succes={success} />
+              </div>
             }
           </div>
         </div>

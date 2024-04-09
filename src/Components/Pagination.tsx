@@ -49,11 +49,10 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onChan
           <div
             onClick={() => onChangePage(number)}
             key={number}
-            className={`inline-flex cursor-pointer items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium ${
-              number === currentPage
+            className={`inline-flex cursor-pointer items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium ${number === currentPage
                 ? 'text-yellow-200 hover:border-yellow-300 hover:text-yellow-300'
                 : 'text-gray-500 hover:border-yellow-300 hover:text-yellow-300'
-            }`}
+              }`}
           >
             {number}
           </div>

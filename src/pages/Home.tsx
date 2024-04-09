@@ -1,26 +1,20 @@
 import CardMovie from '../Components/CardMovie.tsx'
 import Pagination from '../Components/Pagination.tsx'
-import {useEffect, useState} from 'react'
-import {
-  get,
-  getGenre,
-  getMovieByLocationAndRange,
-  getMovieByLocationAndRangeAndQuery,
-  getMovieByTitle
-} from "../api/tmdb.tsx";
-import {Movie} from "../interface/Movie.tsx";
-import {Production} from "../interface/Production.tsx";
-import {Genre} from "../interface/Genre.tsx";
-import {MagnifyingGlassIcon} from '@heroicons/react/20/solid';
+import { useEffect, useState } from 'react'
+import { get, getGenre, getMovieByLocationAndRange, getMovieByLocationAndRangeAndQuery, getMovieByTitle} from "../api/tmdb.tsx";
+import { Movie } from "../interface/Movie.tsx";
+import { Production } from "../interface/Production.tsx";
+import { Genre } from "../interface/Genre.tsx";
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { Fragment } from 'react'
 import { Dialog, Disclosure, Menu, Popover, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import {MapPinIcon} from "@heroicons/react/16/solid";
+import { MapPinIcon } from "@heroicons/react/16/solid";
+
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
-
 
 const sortOptions = [
   { name: 'Popularité', value: 'popularity.desc' },
@@ -30,6 +24,7 @@ const sortOptions = [
   { name: 'Date de sortie croissante', value: 'release_date.asc' },
   { name: 'Date de sortie décroissante', value: 'primary_release_date.desc' },
 ]
+
 const filters = [
   {
     id: 'localisation',
@@ -46,6 +41,7 @@ const filters = [
   },
 
 ]
+
 export default function Home() {
   interface Imovie {
     imdb_id: string;
@@ -65,13 +61,14 @@ export default function Home() {
     tagline: string,
     movie: Movie
   }
+
   const [open, setOpen] = useState(false)
   const [movies, setMovies] = useState<Imovie[]>([]);
   const [currentPage, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [location, setLocation] = useState({latitude: "", longitude: ""});
+  const [location, setLocation] = useState({ latitude: "", longitude: "" });
   const [error, setError] = useState(null);
   const [range, setRange] = useState(1);
   const [sort, setSort] = useState('popularity.desc');
@@ -81,7 +78,6 @@ export default function Home() {
   const [showSort, setShowSort] = useState(true);
 
   const [genresLoaded, setGenresLoaded] = useState(false);
-  const [moviesLoaded, setMoviesLoaded] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -98,7 +94,6 @@ export default function Home() {
     if (genreParams) {
       setcGenre(genreParams.split('-').map(Number));
     }
-    console.log(genreParams);
     setPage(page);
     setSearchTerm(searchTermUrl);
     setSort(sortParam ? sortParam : sort);
@@ -151,7 +146,6 @@ export default function Home() {
         if (genreParams) {
           setcGenre(genreParams.split('-').map(Number));
         }
-        console.log(cGenre)
         getMovieByLocationAndRangeAndQuery({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, query, genreParams, sort).then(data => {
           setTotalPages(data.totalPages);
           const mov = [];
@@ -184,6 +178,7 @@ export default function Home() {
         });
     }
   }, []);
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, option: { value: number }) => {
     const isChecked = e.target.checked;
     setChooserGenre((prevGenres) => {
@@ -196,6 +191,7 @@ export default function Home() {
 
     const url = window.location.href.split('?')[0];
     const queryParams = new URLSearchParams(window.location.search);
+
     queryParams.set('page', "1");
 
     const genreParams = queryParams.get('genres');
@@ -212,6 +208,7 @@ export default function Home() {
     queryParams.set('genres', updatedGenres.join('-'));
     window.location.href = url + '?' + queryParams.toString();
   };
+
   function changePage(page: number) {
     if (page < 1 || page > totalPages) {
       return;
@@ -222,6 +219,7 @@ export default function Home() {
       window.location.href = url + '?' + queryParams.toString();
     }
   }
+
   const handleFormSubmitSearch = (e: { preventDefault: () => void; }) => {
     e.preventDefault(); // Prevents the default form submission behavior
     if (location.latitude === "" && location.longitude === "") {
@@ -231,6 +229,7 @@ export default function Home() {
       handleSearchLocButtonClick();
     }
   };
+
   function handleSearchButtonClick() {
     const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
     const queryParams = new URLSearchParams(window.location.search);
@@ -247,14 +246,17 @@ export default function Home() {
     queryParams.set('query', searchTerm);
     window.location.href = url + '?' + queryParams.toString();
   }
+
   const handleFormSubmitloc = (e: { preventDefault: () => void; }) => {
     e.preventDefault(); // Prevents the default form submission behavior
     getLocation();
   };
+
   const handleFormSubmitRange = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     getMovieByLocation();
   };
+
   function sortMovies(sort: string) {
     setSort(sort);
     const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
@@ -263,18 +265,20 @@ export default function Home() {
     queryParams.set('sort', sort);
     window.location.href = url + '?' + queryParams.toString();
   }
+
   function getMovieByLocation() {
     if (range > 0 && location != null) {
 
-        const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
-        const queryParams = new URLSearchParams(window.location.search);
-        queryParams.set('page', "1");
-        queryParams.set('loc', location.latitude + '-' + location.longitude);
-        queryParams.set('range', range.toString());
-        window.location.href = url + '?' + queryParams.toString();
+      const url = window.location.href.split('?')[0]; // Récupérer l'URL sans la requête existante.
+      const queryParams = new URLSearchParams(window.location.search);
+      queryParams.set('page', "1");
+      queryParams.set('loc', location.latitude + '-' + location.longitude);
+      queryParams.set('range', range.toString());
+      window.location.href = url + '?' + queryParams.toString();
 
     }
   }
+
   const getLocation = async () => {
     if (navigator.geolocation) {
       try {
@@ -304,7 +308,6 @@ export default function Home() {
 
   return (
     <>
-
       {loading ? <p className="text-gray-50">Chargement...</p> : <>
         <div className="">
           <Transition.Root show={open} as={Fragment}>
@@ -318,9 +321,8 @@ export default function Home() {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <div className="fixed inset-0 bg-black bg-opacity-25"/>
+                <div className="fixed inset-0 bg-black bg-opacity-25" />
               </Transition.Child>
-
               <div className="fixed inset-0 z-40 flex">
                 <Transition.Child
                   as={Fragment}
@@ -335,22 +337,20 @@ export default function Home() {
                     className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white py-4 pb-6 shadow-xl">
                     <div className="flex items-center justify-between px-4">
                       <h2 className="text-lg font-medium text-gray-900">Filters</h2>
-
                       <button
                         type="button"
                         className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white hover:border-transparent p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                         onClick={() => setOpen(false)}
                       >
                         <span className="sr-only">Close menu</span>
-                        <XMarkIcon className="h-6 w-6" aria-hidden="true"/>
+                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                       </button>
                     </div>
-
                     {/* Filters */}
                     <form className="mt-4">
-                      {filters.map((section,sectionIdx) => (
+                      {filters.map((section, sectionIdx) => (
                         <Disclosure as="div" key={section.name} className="border-t border-gray-200 px-4 py-6">
-                          {({open}) => (
+                          {({ open }) => (
                             <>
                               <h3 className="-mx-2 -my-3 flow-root">
                                 <Disclosure.Button
@@ -359,118 +359,109 @@ export default function Home() {
                                   {location.latitude != "" && sectionIdx == 0 ? (
                                     <span
                                       className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
-                          1
-                        </span>
+                                      1
+                                    </span>
                                   ) : null}
                                   {cGenre.length != 0 && sectionIdx == 1 ? (
                                     <span
                                       className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
-                          {cGenre.length}
-                        </span>
+                                      {cGenre.length}
+                                    </span>
                                   ) : null}
                                   <span className="ml-6 flex items-center">
-                                <ChevronDownIcon
-                                  className={classNames(open ? '-rotate-180' : 'rotate-0', 'h-5 w-5 transform')}
-                                  aria-hidden="true"
-                                />
-                              </span>
+                                    <ChevronDownIcon
+                                      className={classNames(open ? '-rotate-180' : 'rotate-0', 'h-5 w-5 transform')}
+                                      aria-hidden="true"
+                                    />
+                                  </span>
                                 </Disclosure.Button>
                               </h3>
                               <Disclosure.Panel className="pt-6">
-
                                 <div className="space-y-6">
-
-
                                   {section.options.map((option, optionIdx) => (
-
                                     <div key={option.value} className="flex items-center">
-
                                       {option.value != null ?
                                         <>
-                                        {showGenre &&
+                                          {showGenre &&
                                             <>
-                                            <input
+                                              <input
                                                 id={`filter-mobile-${section.id}-${optionIdx}`}
                                                 name={`${section.id}[]`}
                                                 defaultValue={option.value}
                                                 type="checkbox"
                                                 checked={cGenre.includes(option.value)}
-                                              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                              // @ts-expect-error
-                                                onChange={(e) => handleCheckboxChange(e, {value: option.value})}
+                                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                                // @ts-expect-error
+                                                onChange={(e) => handleCheckboxChange(e, { value: option.value })}
                                                 className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-500"
-                                            />
-                                          <label
-                                          htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
-                                        className="ml-3 text-sm text-gray-500"
-                                        >
-                                        {option.label}
-                                        </label>
+                                              />
+                                              <label
+                                                htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
+                                                className="ml-3 text-sm text-gray-500"
+                                              >
+                                                {option.label}
+                                              </label>
                                             </>
-                                      }
+                                          }
+                                        </>
+                                        :
+                                        <div className="block">
+                                          <div className="flex w-40 justify-center">
+                                            {location.latitude == "" ?
+                                              <button
+                                                className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
+                                                onClick={handleFormSubmitloc}>
+                                                <MapPinIcon color={"black"} className="mr-2" width={25} />
+                                                Autour de moi
+                                              </button>
+                                              : ""
+                                            }
+                                          </div>
+                                          {location.latitude && (
+                                            <div className=" ">
+                                              <label htmlFor="locationRange" className="text-gray-600 ">
+                                                Cinémas à moins de :
+                                              </label>
+                                              <div className="block ">
+                                                <input className="w-full my-4"
+                                                  type="range"
+                                                  id="locationRange"
+                                                  name="locationRange"
+                                                  min="1"
+                                                  max="100"
+                                                  step="1"
+                                                  value={range}
+                                                  onChange={(e) => setRange(parseInt(e.target.value))}
+                                                // onChange={handleRangeChange}
+                                                />
+                                                <p
+                                                  className="text-gray-500 pb-2">{range}{range > 1 ? " kms" : " km"}</p>
+                                              </div>
+                                              <div className="block">
+                                                <button onClick={handleFormSubmitRange}
+                                                  className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
+                                                  Rechercher
+                                                </button>
+                                                <br />
+                                                <button
+                                                  className="pt-2 border-[1px] mt-2 text-yellow-300 text-sm border-solid border-transparent hover:border-yellow-300">
+                                                  <a href="/" >Réinitialiser </a>
+                                                </button>
+                                              </div>
 
-
-                                    </>
-                                    :
-                                    <div className="block">
-                                    <div className="flex w-40 justify-center">
-                                  {location.latitude == "" ?
-                                    <button
-                                    className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
-                                    onClick={handleFormSubmitloc}>
-                                  <MapPinIcon color={"black"} className="mr-2" width={25}/> Autour de moi
-                                </button>
-                                : ""}
-                              </div>
-
-                              {location.latitude && (
-                                <div className=" ">
-
-                                  <label htmlFor="locationRange" className="text-gray-600 ">Cinémas à moins
-                                    de
-                                    :</label>
-
-
-                                  <div className="block ">
-                                    <input className="w-full my-4"
-                                           type="range"
-                                           id="locationRange"
-                                           name="locationRange"
-                                           min="1"
-                                           max="100"
-                                           step="1"
-                                           value={range}
-                                           onChange={(e) => setRange(parseInt(e.target.value))}
-                                      // onChange={handleRangeChange}
-                                    />
-                                    <p
-                                      className="text-gray-500 pb-2">{range}{range > 1 ? " kms" : " km"}</p>
-                                  </div>
-                                  <div className="block">
-                                  <button onClick={handleFormSubmitRange}
-                                          className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
-                                    Rechercher
-                                  </button>
-                                  <br/>
-                                  <button
-                                          className="pt-2 border-[1px] mt-2 text-yellow-300 text-sm border-solid border-transparent hover:border-yellow-300">
-                                    <a href="/" >Réinitialiser </a>
-                                  </button>
-                                  </div>
-
-                                </div>
-                              )}
-                                      {error && <p className="text-gray-500 text-center">{error}</p>}
-                                    </div>}
+                                            </div>
+                                          )}
+                                          {error && <p className="text-gray-500 text-center">{error}</p>}
+                                        </div>}
                                     </div>
                                   ))}
                                   {section.id === 'genre' && showGenre ?
-                                  <button
-                                    onClick={() => setcGenre([])}
-                                    className="text-sm text-white">
-                                    Réinitialiser
-                                  </button> : ""
-                                    }
+                                    <button
+                                      onClick={() => setcGenre([])}
+                                      className="text-sm text-white">
+                                      Réinitialiser
+                                    </button> : ""
+                                  }
 
                                 </div>
                               </Disclosure.Panel>
@@ -481,56 +472,56 @@ export default function Home() {
                       ))}
                     </form>
                   </Dialog.Panel>
-                            </Transition.Child>
+                </Transition.Child>
+              </div>
+            </Dialog>
+          </Transition.Root>
+          <div className="mx-auto max-w-7xl  text-center lg:max-w-7xl ">
+
+
+            <section aria-labelledby="filter-heading" className="border-t border-gray-200 py-6">
+              <h2 id="filter-heading" className="sr-only">
+                filters
+              </h2>
+
+              <div className="flex items-center justify-between">
+                <Menu as="div" className="relative inline-block text-left">
+                  <div>
+                    {showSort &&
+                      <Menu.Button
+                        className="group inline-flex justify-center border-[1px] border-solid border-transparent hover:border-yellow-300 text-sm font-medium text-gray-100 hover:text-gray-200">
+                        Trier
+                        <ChevronDownIcon
+                          className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-100 group-hover:text-gray-200"
+                          aria-hidden="true"
+                        />
+                      </Menu.Button>
+                    }
+                  </div>
+
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items
+                      className="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div className="py-1">
+                        {sortOptions.map((option) => (
+                          <Menu.Item key={option.value}>
+                            <div
+                              onClick={() => sortMovies(option.value)}
+                              className={classNames(
+                                option.value == sort ? ' cursor-pointer bg-gray-200 hover:text-orange-400' : '',
+                                'block px-4 py-2 text-sm cursor-pointer font-medium text-gray-600 hover:text-orange-400'
+                              )}
+                            >
+                              {option.name}
                             </div>
-                            </Dialog>
-                            </Transition.Root>
-                            <div className="mx-auto max-w-7xl  text-center lg:max-w-7xl ">
-
-
-                            <section aria-labelledby="filter-heading" className="border-t border-gray-200 py-6">
-                            <h2 id="filter-heading" className="sr-only">
-                            filters
-                            </h2>
-
-                            <div className="flex items-center justify-between">
-                            <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              {showSort &&
-                            <Menu.Button
-                            className="group inline-flex justify-center border-[1px] border-solid border-transparent hover:border-yellow-300 text-sm font-medium text-gray-100 hover:text-gray-200">
-                            Trier
-                            <ChevronDownIcon
-                            className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-100 group-hover:text-gray-200"
-                            aria-hidden="true"
-                            />
-                            </Menu.Button>
-                              }
-                            </div>
-
-                            <Transition
-                            as={Fragment}
-                          enter="transition ease-out duration-100"
-                          enterFrom="transform opacity-0 scale-95"
-                          enterTo="transform opacity-100 scale-100"
-                          leave="transition ease-in duration-75"
-                          leaveFrom="transform opacity-100 scale-100"
-                          leaveTo="transform opacity-0 scale-95"
-                        >
-                          <Menu.Items
-                            className="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div className="py-1">
-                              {sortOptions.map((option) => (
-                                <Menu.Item key={option.value}>
-                                    <div
-                                      onClick={() => sortMovies(option.value)}
-                                      className={classNames(
-                                  option.value==sort ? ' cursor-pointer bg-gray-200 hover:text-orange-400' : '',
-                                  'block px-4 py-2 text-sm cursor-pointer font-medium text-gray-600 hover:text-orange-400'
-                                )}
-                              >
-                                {option.name}
-                              </div>
 
                           </Menu.Item>
                         ))}
@@ -562,14 +553,14 @@ export default function Home() {
                           {location.latitude != "" && sectionIdx == 0 ? (
                             <span
                               className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
-                          1
-                        </span>
+                              1
+                            </span>
                           ) : null}
                           {cGenre.length != 0 && sectionIdx == 1 ? (
                             <span
                               className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">
-                          {cGenre.length}
-                        </span>
+                              {cGenre.length}
+                            </span>
                           ) : null}
                           <ChevronDownIcon
                             className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-100 group-hover:text-gray-200"
@@ -596,25 +587,25 @@ export default function Home() {
                                   <>
                                     {showGenre &&
                                       <>
-                                      <input
-                                      id={`filter-${section.id}-${optionIdx}`}
-                                    name={`${section.id}[]`}
-                                    defaultValue={option.value}
-                                    checked={cGenre.includes(option.value)}
-                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                    // @ts-expect-error
-                                    onChange={(e) => handleCheckboxChange(e, {value: option.value})}
-                                    type="checkbox"
-                                    className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-300"
-                                  />
-                                  <label
-                                    htmlFor={`filter-${section.id}-${optionIdx}`}
-                                    className="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900"
-                                  >
-                                    {option.label}
-                                  </label>
-                                    </>
-                                }
+                                        <input
+                                          id={`filter-${section.id}-${optionIdx}`}
+                                          name={`${section.id}[]`}
+                                          defaultValue={option.value}
+                                          checked={cGenre.includes(option.value)}
+                                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                          // @ts-expect-error
+                                          onChange={(e) => handleCheckboxChange(e, { value: option.value })}
+                                          type="checkbox"
+                                          className="h-4 w-4 rounded border-gray-300 text-yellow-300 focus:ring-yellow-300"
+                                        />
+                                        <label
+                                          htmlFor={`filter-${section.id}-${optionIdx}`}
+                                          className="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900"
+                                        >
+                                          {option.label}
+                                        </label>
+                                      </>
+                                    }
                                   </>
                                   :
                                   <div className="block">
@@ -623,7 +614,7 @@ export default function Home() {
                                         <button
                                           className="bg-white p-1 text-gray-700 justify-center flex items-center border-[1px] border-solid border-transparent hover:border-yellow-300"
                                           onClick={handleFormSubmitloc}>
-                                          <MapPinIcon color={"black"} className="mr-2" width={25}/> Autour de moi
+                                          <MapPinIcon color={"black"} className="mr-2" width={25} /> Autour de moi
                                         </button>
                                         : ""}
 
@@ -644,14 +635,14 @@ export default function Home() {
                                             step="1"
                                             value={range}
                                             onChange={(e) => setRange(parseInt(e.target.value))}
-                                            // onChange={handleRangeChange}
+                                          // onChange={handleRangeChange}
                                           />
                                           <div className="block">
                                             <button onClick={handleFormSubmitRange}
-                                                    className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
+                                              className="pt-2 border-[1px] text-sm border-solid border-transparent hover:border-yellow-300">
                                               Rechercher
                                             </button>
-                                            <br/>
+                                            <br />
                                             <button
                                               className="pt-2 border-[1px] mt-2 text-yellow-300 text-sm border-solid border-transparent hover:border-yellow-300">
                                               <a href="/">Réinitialiser </a>
@@ -724,7 +715,7 @@ export default function Home() {
                       </label>
                       <div className="relative">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                         </div>
                         <div className="flex">
                           <input
@@ -755,10 +746,10 @@ export default function Home() {
                   {movies && movies.map((movie: Imovie, index) => (
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-expect-error
-                    <><CardMovie key={index} movie={movie}/> </>
+                    <><CardMovie key={index} movie={movie} /> </>
                   ))}
                 </ul>
-                <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage}/>
+                <Pagination currentPage={currentPage} totalPages={totalPages} onChangePage={changePage} />
               </>
             }
           </>

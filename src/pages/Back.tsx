@@ -1,17 +1,3 @@
-// async function fetchData() {
-//   try {
-//     const response = await fetch('http://localhost:3000/api/data');
-//     if (!response.ok) {
-//       throw new Error('Failed to fetch data');
-//     }
-//     await response.json();
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//   }
-// }
-
-// fetchData();
-
 function Back() {
 
   return (
