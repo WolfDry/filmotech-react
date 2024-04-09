@@ -84,7 +84,7 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
         }
     }
     function customSort(a, b) {
-        console.log(sort);
+        // console.log(sort);
         switch (sort) {
             case 'vote_average.desc':
                 return  a.movie.vote_average - b.movie.vote_average;
@@ -177,7 +177,7 @@ app.post('/api/movie-in-range', async (req, res) => {
     }
 
     function customSort(a, b) {
-        console.log(sort);
+        // console.log(sort);
         switch (sort) {
             case 'vote_average.desc':
                 return  a.movie.vote_average - b.movie.vote_average;

@@ -81,7 +81,7 @@ export default function Home() {
   const [showSort, setShowSort] = useState(true);
 
   const [genresLoaded, setGenresLoaded] = useState(false);
-  const [moviesLoaded, setMoviesLoaded] = useState(false);
+  // const [moviesLoaded, setMoviesLoaded] = useState(false);
 
   useEffect(() => {
     setLoading(true);
