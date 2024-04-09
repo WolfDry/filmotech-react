@@ -81,7 +81,6 @@ export default function Home() {
   const [showSort, setShowSort] = useState(true);
 
   const [genresLoaded, setGenresLoaded] = useState(false);
-  // const [moviesLoaded, setMoviesLoaded] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -89,7 +88,7 @@ export default function Home() {
     const pageParam = urlParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
     const query = urlParams.get('query');
-    const sortParam = urlParams.get('sort');
+    const sortParam = urlParams.get('sort')? urlParams.get('sort') : sort;
     const genreParams = urlParams.get('genres');
     const locParam = urlParams.get('loc');
     const rangeParam = urlParams.get('range');
@@ -104,11 +103,12 @@ export default function Home() {
     setSort(sortParam ? sortParam : sort);
 
     if (locParam && searchTermUrl === '') {
+      console.log(sort)
       setLoading(true);
       const loc = locParam.split('-');
       if (rangeParam != null) {
         setLocation({ latitude: loc[0], longitude: loc[1] });
-        getMovieByLocationAndRange({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, genreParams, sort).then(data => {
+        getMovieByLocationAndRange({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, genreParams, sortParam!).then(data => {
           setTotalPages(data.totalPages);
           const mov = [];
           for (let i = 0; i < data.movies.length; i++) {
@@ -122,6 +122,8 @@ export default function Home() {
       }
     }
     else if (searchTermUrl === '' && locParam == null) {
+      console.log('je passe la')
+      setLoading(true);
       get(page, sortParam ? sortParam : sort, genreParams ? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
           setMovies(data.movies);
@@ -134,6 +136,7 @@ export default function Home() {
       if (genreParams) {
         setcGenre(genreParams.split('-').map(Number));
       }
+      setLoading(true);
       getMovieByTitle(searchTermUrl, page, sortParam ? sortParam : sort).then(data => {
         if (data && data.movies) {
           setMovies(data.movies);
@@ -165,10 +168,10 @@ export default function Home() {
         }).catch(err => console.error(err));
       }
     }
-  }, [sort, choosenGenre]);
+  }, [choosenGenre]);
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
     if (!genresLoaded) {
       getGenre()
         .then(data => {
@@ -176,7 +179,7 @@ export default function Home() {
             return { value: genre.id, label: genre.name }
           });
           setGenresLoaded(true);
-          setLoading(false);
+          // setLoading(false);
         })
         .catch(err => {
           console.error(err);
@@ -210,7 +213,9 @@ export default function Home() {
       }
     }
     queryParams.set('genres', updatedGenres.join('-'));
-    window.location.href = url + '?' + queryParams.toString();
+    // window.location.href = url + '?' + queryParams.toString();
+    const newUrl = url + '?' + queryParams.toString();
+    window.history.pushState({ path: newUrl }, '', newUrl);
   };
   function changePage(page: number) {
     if (page < 1 || page > totalPages) {
@@ -271,8 +276,20 @@ export default function Home() {
         queryParams.set('page', "1");
         queryParams.set('loc', location.latitude + '-' + location.longitude);
         queryParams.set('range', range.toString());
-        window.location.href = url + '?' + queryParams.toString();
-
+        const newUrl = url + '?' + queryParams.toString();
+        window.history.pushState({ path: newUrl }, '', newUrl);
+        setLoading(true);
+      getMovieByLocationAndRange({ latitude: location.latitude.toString(), longitude: location.longitude.toString() }, range, 1, choosenGenre.toString(), sort).then(data => {
+        setTotalPages(data.totalPages);
+        const mov = [];
+        for (let i = 0; i < data.movies.length; i++) {
+          mov[i] = data.movies[i].movie
+          mov[i].cinemas = data.movies[i].cinemas
+        }
+        setPage(data.currentPage);
+        setMovies(mov);
+        setLoading(false);
+      }).catch(err => console.error(err));
     }
   }
   const getLocation = async () => {
@@ -714,7 +731,7 @@ export default function Home() {
             </a>
           </>
           : <>
-            {movies.length < 1 ? <p className="text-gray-50">Chargement...</p> :
+            {loading ? <p className="text-gray-50">Chargement...</p> :
               <>
                 <div className="flex  items-center justify-center pb-5 lg:justify-end">
                   <div className="w-full  lg:max-w-7xl">

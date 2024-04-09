@@ -83,15 +83,16 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
             }
         }
     }
-    function customSort(a, b) {
-        // console.log(sort);
+    function customSort(a, b, sort) {
         switch (sort) {
             case 'vote_average.desc':
-                return  a.movie.vote_average - b.movie.vote_average;
+                console.log(a.movie.vote_average);
+                console.log(b.movie.vote_average);
+                return  Math.round(b.movie.vote_average) - Math.round(a.movie.vote_average);
             case 'title.asc':
-                return b.movie.title - a.movie.title;
+                return a.movie.title.localeCompare(b.movie.title);
             case 'title.desc':
-                return a.movie.title - b.movie.title;
+                return b.movie.title.localeCompare(a.movie.title);
             case 'release_date.asc':
                 return new Date(a.movie.release_date) - new Date(b.movie.release_date);
             case'primary_release_date.desc':
@@ -100,8 +101,9 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
                 return a.movie.popularity - b.movie.popularity ;
         }
     }
-
-    movies.sort(customSort);
+    movies.sort((a, b) => customSort(a, b, sort));
+    console.log(movies);
+    // movies.sort(customSort);
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
     const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
@@ -176,15 +178,17 @@ app.post('/api/movie-in-range', async (req, res) => {
         }
     }
 
-    function customSort(a, b) {
+    function customSort(a, b, sort) {
         // console.log(sort);
         switch (sort) {
             case 'vote_average.desc':
-                return  a.movie.vote_average - b.movie.vote_average;
+                console.log(a.movie.vote_average);
+                console.log(b.movie.vote_average);
+                return  Math.round(b.movie.vote_average) - Math.round(a.movie.vote_average);
             case 'title.asc':
-                return b.movie.title - a.movie.title;
+                return a.movie.title.localeCompare(b.movie.title);
             case 'title.desc':
-                return a.movie.title - b.movie.title;
+                return b.movie.title.localeCompare(a.movie.title);
             case 'release_date.asc':
                 return new Date(a.movie.release_date) - new Date(b.movie.release_date);
             case'primary_release_date.desc':
@@ -193,8 +197,7 @@ app.post('/api/movie-in-range', async (req, res) => {
                 return a.movie.popularity - b.movie.popularity ;
         }
     }
-
-    movies.sort(customSort);
+    movies.sort((a, b) => customSort(a, b, sort));
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
