@@ -25,7 +25,7 @@ const Reviews = ({ movie }: Imovie) => {
   const [reviews, setReviews] = useState([])
 
   const getReviews = () => {
-    fetch(`http://localhost:3000/api/comment/get/${movie.imdb_id}`)
+    fetch(`${import.meta.env.VITE_END_POINT_API}/api/comment/get/${movie.imdb_id}`)
       .then(response => response.json())
       .then(data => setReviews(data.reverse()))
   }
@@ -89,7 +89,7 @@ const Reviews = ({ movie }: Imovie) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       };
-      fetch('http://localhost:3000/api/comment/insert', requestOptions)
+      fetch(`${import.meta.env.VITE_END_POINT_API}/api/comment/insert`, requestOptions)
         .then(response => response.json());
     } catch (error) {
       console.error('Error fetching data:', error);

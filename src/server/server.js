@@ -6,6 +6,7 @@ import cors from 'cors'
 const app = express();
 const port = 3000;
 
+
 // MongoDB Connection
 const uri = 'mongodb+srv://filmotech:jn2U5c4x5zNw8Knt@filmotech.roycvfe.mongodb.net/filmotech?retryWrites=true&w=majority';
 const client = new MongoClient(uri);
@@ -86,8 +87,6 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
     function customSort(a, b, sort) {
         switch (sort) {
             case 'vote_average.desc':
-                console.log(a.movie.vote_average);
-                console.log(b.movie.vote_average);
                 return  Math.round(b.movie.vote_average) - Math.round(a.movie.vote_average);
             case 'title.asc':
                 return a.movie.title.localeCompare(b.movie.title);
@@ -102,7 +101,7 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
         }
     }
     movies.sort((a, b) => customSort(a, b, sort));
-    console.log(movies);
+
     // movies.sort(customSort);
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
@@ -136,7 +135,6 @@ app.post('/api/movie-in-range', async (req, res) => {
     const locationUser = req.body.location;
     const range = req.body.range;
     const sort = req.body.sort;
-    console.log(sort);
     const genre = req.body.genre || [];
     let genreIdsSplitted = [];
     if(genre.length > 0) {
@@ -145,13 +143,13 @@ app.post('/api/movie-in-range', async (req, res) => {
             genreIdsSplitted[i] = parseInt(genreIdsSplitted[i]);
         }
     }
+
     const page = parseInt(req.body.page) || 1; // Récupérer le numéro de page, par défaut 1
     const pageSize =  20; // Récupérer la taille de la page, par défaut 20
     const collection = db.collection('cinema');
     const cinema = await collection.find({}).toArray();
     const cinemas = filterCinemasByDistance({ lat: parseFloat(locationUser.latitude), lon: parseFloat(locationUser.longitude) }, cinema, range);
     const movies = [];
-
     for (const cinema of cinemas) {
         for (const movie of cinema.movies) {
             if (genreIdsSplitted.length > 0) {
@@ -182,8 +180,6 @@ app.post('/api/movie-in-range', async (req, res) => {
         // console.log(sort);
         switch (sort) {
             case 'vote_average.desc':
-                console.log(a.movie.vote_average);
-                console.log(b.movie.vote_average);
                 return  Math.round(b.movie.vote_average) - Math.round(a.movie.vote_average);
             case 'title.asc':
                 return a.movie.title.localeCompare(b.movie.title);
@@ -330,7 +326,6 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
                     }
             }
             await collection.updateOne({ _id: cinemas[index]._id }, { $set: { movies: randomMovies } });
-            // console.log(cinemas[index]);
         }
 
         res.status(200).send('Movies associated with cinemas successfully !');
@@ -341,5 +336,5 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running at localhost:${port} `);
 });

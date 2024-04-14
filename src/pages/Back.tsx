@@ -1,6 +1,6 @@
 // async function fetchData() {
 //   try {
-//     const response = await fetch('http://localhost:3000/api/data');
+//     const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/data`);
 //     if (!response.ok) {
 //       throw new Error('Failed to fetch data');
 //     }

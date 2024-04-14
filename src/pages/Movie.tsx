@@ -36,7 +36,7 @@ export default function MovieOnly() {
   const [reviews, setReviews] = useState([])
 
   const getReviews = (data:string) => {
-    fetch(`http://localhost:3000/api/comment/get/${data}`)
+    fetch(`${import.meta.env.VITE_END_POINT_API}/api/comment/get/${data}`)
       .then(response => response.json())
       .then(data => setReviews(data.reverse()))
   }
@@ -57,10 +57,9 @@ export default function MovieOnly() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   async function getCinemaName(id: string) {
-    const response = await fetch(`http://localhost:3000/api/cinema-of-movie/${id}`);
+    const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/cinema-of-movie/${id}`);
     const data = await response.json();
     setCinemas(data);
-    console.log(data)
   }
 
 

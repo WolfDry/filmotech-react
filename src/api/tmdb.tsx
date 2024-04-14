@@ -1,4 +1,5 @@
-
+// import dotenv from 'dotenv';
+// dotenv.config();
 export const get = async (page: number = 1,sort:string,genre:string) => {
   const options = {
     method: 'GET',
@@ -68,7 +69,10 @@ export const getMovieByLocationAndRange = async (locationUser: { latitude: strin
     body: JSON.stringify({ location: locationUser, range: range,page:page, genre:genre,sort: sort })
   };
   try {
-    const response = await fetch('http://localhost:3000/api/movie-in-range', options);
+    const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/movie-in-range`, options);
+
+
+
     return await response.json();
   }
   catch (err) {
@@ -87,7 +91,7 @@ export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitud
     body: JSON.stringify({ location: locationUser, range: range,page:page,query:query,genre:genre,sort:sort })
   };
   try {
-    const response = await fetch('http://localhost:3000/api/movie-in-range-recherche', options);
+    const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/movie-in-range-recherche`, options);
     return await response.json();
   }
   catch (err) {

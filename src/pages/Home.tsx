@@ -1,3 +1,5 @@
+
+
 import CardMovie from '../Components/CardMovie.tsx'
 import Pagination from '../Components/Pagination.tsx'
 import {useEffect, useState} from 'react'
@@ -97,13 +99,11 @@ export default function Home() {
     if (genreParams) {
       setcGenre(genreParams.split('-').map(Number));
     }
-    console.log(genreParams);
     setPage(page);
     setSearchTerm(searchTermUrl);
     setSort(sortParam ? sortParam : sort);
 
     if (locParam && searchTermUrl === '') {
-      console.log(sort)
       setLoading(true);
       const loc = locParam.split('-');
       if (rangeParam != null) {
@@ -122,7 +122,6 @@ export default function Home() {
       }
     }
     else if (searchTermUrl === '' && locParam == null) {
-      console.log('je passe la')
       setLoading(true);
       get(page, sortParam ? sortParam : sort, genreParams ? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
