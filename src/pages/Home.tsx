@@ -104,7 +104,6 @@ export default function Home() {
     setSort(sortParam ? sortParam : sort);
 
     if (locParam && searchTermUrl === '') {
-      setLoading(true);
       const loc = locParam.split('-');
       if (rangeParam != null) {
         setLocation({ latitude: loc[0], longitude: loc[1] });
@@ -117,34 +116,34 @@ export default function Home() {
           }
           setPage(data.currentPage);
           setMovies(mov);
-          setLoading(false);
-        }).catch(err => console.error(err));
+
+        }).catch(err => console.error(err)).finally(() => setLoading(false));
       }
     }
     else if (searchTermUrl === '' && locParam == null) {
-      setLoading(true);
+
       get(page, sortParam ? sortParam : sort, genreParams ? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
           setMovies(data.movies);
+          console.log()
           setTotalPages(data.totalPages);
-          setLoading(false);
         }
-      }).catch(err => console.error(err));
+      }).catch(err => console.error(err)).finally(() => setLoading(false));
     }
     else if (searchTermUrl !== '' && locParam == null) {
       if (genreParams) {
         setcGenre(genreParams.split('-').map(Number));
       }
-      setLoading(true);
+
       getMovieByTitle(searchTermUrl, page, sortParam ? sortParam : sort).then(data => {
         if (data && data.movies) {
           setMovies(data.movies);
           setTotalPages(data.totalPages);
           setShowGenre(false);
           setShowSort(false);
-          setLoading(false);
+
         }
-      }).catch(err => console.error(err));
+      }).catch(err => console.error(err)).finally(() => setLoading(false));
     }
     else if (searchTermUrl !== '' && locParam !== null) {
       const loc = locParam.split('-');
@@ -163,14 +162,12 @@ export default function Home() {
           }
           setPage(data.currentPage);
           setMovies(mov);
-          setLoading(false);
-        }).catch(err => console.error(err));
+        }).catch(err => console.error(err)).finally(() => setLoading(false));
       }
     }
   }, [choosenGenre]);
 
   useEffect(() => {
-    // setLoading(true);
     if (!genresLoaded) {
       getGenre()
         .then(data => {
@@ -182,7 +179,6 @@ export default function Home() {
         })
         .catch(err => {
           console.error(err);
-          setLoading(false);
         });
     }
   }, []);
@@ -287,8 +283,8 @@ export default function Home() {
         }
         setPage(data.currentPage);
         setMovies(mov);
-        setLoading(false);
-      }).catch(err => console.error(err));
+
+      }).catch(err => console.error(err)).finally(() => setLoading(false));
     }
   }
   const getLocation = async () => {
@@ -321,7 +317,8 @@ export default function Home() {
   return (
     <>
 
-      {loading ? <p className="text-gray-50">Chargement...</p> : <>
+      {loading ? <p className="text-gray-50">Chargement...</p> :
+        <>
         <div className="">
           <Transition.Root show={open} as={Fragment}>
             <Dialog as="div" className="relative z-40 sm:hidden" onClose={setOpen}>
@@ -501,7 +498,8 @@ export default function Home() {
                             </div>
                             </Dialog>
                             </Transition.Root>
-                            <div className="mx-auto max-w-7xl  text-center lg:max-w-7xl ">
+
+                 <div className="mx-auto max-w-7xl  text-center lg:max-w-7xl ">
 
 
                             <section aria-labelledby="filter-heading" className="border-t border-gray-200 py-6">
@@ -701,9 +699,9 @@ export default function Home() {
             </section>
           </div>
         </div>
-        {movies.length == 0 ?
+        {!loading && movies.length === 0 ?
           <>
-            <div className="flex w-max-[1000px]">
+            <div className="flex w-full">
               <input
                 onChange={(e) => setSearchTerm(e.target.value)}
                 value={searchTerm}
@@ -721,13 +719,16 @@ export default function Home() {
                 Rechercher
               </button>
             </div>
-            <p className="text-gray-50 pt-2">Aucuns films disponible...</p>
-            <a
-              href="/"
-              className="mt-6 cursor-pointer inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
-            >
-              Revenir à l'accueil
-            </a>
+            {!loading && movies.length === 0 ?
+              <>
+                <p className="text-gray-50 pt-2 ">Aucuns films disponible...</p>
+                <a
+                  href="/"
+                  className="mt-6 cursor-pointer inline-flex hover:text-black w-full items-center justify-center rounded-md border border-gray-900 hover:border-yellow-900 transition bg-white px-8 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-300 sm:w-auto lg:w-full"
+                >
+                  Revenir à l'accueil
+                </a></>
+              : <div></div>}
           </>
           : <>
             {loading ? <p className="text-gray-50">Chargement...</p> :

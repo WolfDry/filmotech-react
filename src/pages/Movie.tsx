@@ -59,8 +59,7 @@ export default function MovieOnly() {
   async function getCinemaName(id: string) {
     const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/cinema-of-movie/${id}`);
     const data = await response.json();
-    setCinemas(data);
-  }
+    setCinemas(data);}
 
 
   function formateDate(dateString: string) {
