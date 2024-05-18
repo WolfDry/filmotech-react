@@ -26,7 +26,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <NavBar />
     <div className="root">
-      <div className="body" class="w-full">
+      <div className="body w-full" >
     <RouterProvider router={router} />
       </div>
     </div>
