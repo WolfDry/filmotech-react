@@ -1,13 +1,7 @@
 import CardMovie from '../Components/CardMovie.tsx'
 import Pagination from '../Components/Pagination.tsx'
 import { useEffect, useState } from 'react'
-import {
-  get,
-  getGenre,
-  getMovieByLocationAndRange,
-  getMovieByLocationAndRangeAndQuery,
-  getMovieByTitle
-} from "../api/tmdb.tsx";
+import { get, getGenre, getMovieByLocationAndRange, getMovieByLocationAndRangeAndQuery, getMovieByTitle } from "../api/tmdb.tsx";
 import { Movie } from "../interface/Movie.tsx";
 import { Production } from "../interface/Production.tsx";
 import { Genre } from "../interface/Genre.tsx";
@@ -17,10 +11,10 @@ import { Dialog, Disclosure, Menu, Popover, Transition } from '@headlessui/react
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { MapPinIcon } from "@heroicons/react/16/solid";
+
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
-
 
 const sortOptions = [
   { name: 'Popularité', value: 'popularity.desc' },
@@ -30,6 +24,7 @@ const sortOptions = [
   { name: 'Date de sortie croissante', value: 'release_date.asc' },
   { name: 'Date de sortie décroissante', value: 'primary_release_date.desc' },
 ]
+
 const filters = [
   {
     id: 'localisation',
@@ -123,7 +118,6 @@ export default function Home() {
       get(page, sortParam ? sortParam : sort, genreParams ? genreParams.split('-').map(Number).toString() : '').then(data => {
         if (data) {
           setMovies(data.movies);
-          console.log()
           setTotalPages(data.totalPages);
         }
       }).catch(err => console.error(err)).finally(() => setLoading(false));
@@ -150,7 +144,6 @@ export default function Home() {
         if (genreParams) {
           setcGenre(genreParams.split('-').map(Number));
         }
-        console.log(cGenre)
         getMovieByLocationAndRangeAndQuery({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, query, genreParams, sort).then(data => {
           setTotalPages(data.totalPages);
           const mov = [];
