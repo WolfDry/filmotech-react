@@ -41,7 +41,7 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
     const genre = req.body.genre || [];
     let genreIdsSplitted = [];
     if(genre.length > 0) {
-         genreIdsSplitted = genre.split('-');
+        genreIdsSplitted = genre.split('-');
         for (let i = 0; i < genreIdsSplitted.length; i++) {
             genreIdsSplitted[i] = parseInt(genreIdsSplitted[i]);
         }
@@ -60,7 +60,7 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
             const movieTitle = movie.title || ''; // Assurez-vous que le titre existe
             if (new RegExp(query, 'i').test(movieTitle)) {
                 if (genreIdsSplitted.length > 0) {
-                    if (movie.genre_ids.some(id => genreIdsSplitted.includes(id))) {
+                    if (movie.genre_ids.every(id => genreIdsSplitted.includes(id))) {
                         const movieWithCinemaInfo = {
                             cinema: {
                                 _id: cinema._id,
@@ -70,8 +70,7 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
                         };
                         movies.push(movieWithCinemaInfo);
                     }
-                }
-                else {
+                }else {
                     const movieWithCinemaInfo = {
                         cinema: {
                             _id: cinema._id,
@@ -85,6 +84,7 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
         }
     }
     function customSort(a, b, sort) {
+        // console.log(sort);
         switch (sort) {
             case 'vote_average.desc':
                 return  Math.round(b.movie.vote_average) - Math.round(a.movie.vote_average);
@@ -101,10 +101,9 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
         }
     }
     movies.sort((a, b) => customSort(a, b, sort));
-
-    // movies.sort(customSort);
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
+
     const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
     res.json({
         totalMovies: movies.length,

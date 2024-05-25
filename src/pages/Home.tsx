@@ -97,6 +97,7 @@ export default function Home() {
     setPage(page);
     setSearchTerm(searchTermUrl);
     setSort(sortParam ? sortParam : sort);
+    setRange(rangeParam ? parseInt(rangeParam) : 1);
 
     if (locParam && searchTermUrl === '') {
       const loc = locParam.split('-');
@@ -146,7 +147,8 @@ export default function Home() {
         if (genreParams) {
           setcGenre(genreParams.split('-').map(Number));
         }
-        getMovieByLocationAndRangeAndQuery({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, query, genreParams, sort).then(data => {
+        console.log(genreParams);
+        getMovieByLocationAndRangeAndQuery({ latitude: parseFloat(loc[0]).toString(), longitude: parseFloat(loc[1]).toString() }, parseInt(rangeParam), page, query, genreParams, sortParam? sortParam : 'popularity.desc').then(data => {
           setTotalPages(data.totalPages);
           const mov = [];
           for (let i = 0; i < data.movies.length; i++) {

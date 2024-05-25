@@ -81,7 +81,7 @@ export const getMovieByLocationAndRange = async (locationUser: { latitude: strin
   }
 }
 
-export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitude: string, longitude: string }, range: number,page:number,query:null|string,genre :null|string,sort:'popularity.desc'|string) => {
+export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitude: string, longitude: string }, range: number,page:number,query:null|string,genre :null|string,sort:string) => {
   const options = {
     method: 'POST',
     headers: {
@@ -91,6 +91,7 @@ export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitud
     body: JSON.stringify({ location: locationUser, range: range,page:page,query:query,genre:genre,sort:sort })
   };
   try {
+    console.log(sort)
     const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/movie-in-range-recherche`, options);
     return await response.json();
   }
