@@ -124,7 +124,7 @@ export default function Home() {
     }
     else if (searchTermUrl !== '' && locParam == null) {
       if (genreParams) {
-        setcGenre(genreParams.split('-').map(Number));
+        setcGenre([]);
       }
 
       getMovieByTitle(searchTermUrl, page, sortParam ? sortParam : sort).then(data => {
