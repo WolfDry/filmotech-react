@@ -6,6 +6,7 @@ import cors from 'cors'
 const app = express();
 const port = 3000;
 
+
 // MongoDB Connection
 const uri = 'mongodb+srv://filmotech:jn2U5c4x5zNw8Knt@filmotech.roycvfe.mongodb.net/filmotech?retryWrites=true&w=majority';
 const client = new MongoClient(uri);
@@ -83,15 +84,14 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
             }
         }
     }
-    function customSort(a, b) {
-        console.log(sort);
+    function customSort(a, b, sort) {
         switch (sort) {
             case 'vote_average.desc':
-                return  a.movie.vote_average - b.movie.vote_average;
+                return  Math.round(b.movie.vote_average) - Math.round(a.movie.vote_average);
             case 'title.asc':
-                return b.movie.title - a.movie.title;
+                return a.movie.title.localeCompare(b.movie.title);
             case 'title.desc':
-                return a.movie.title - b.movie.title;
+                return b.movie.title.localeCompare(a.movie.title);
             case 'release_date.asc':
                 return new Date(a.movie.release_date) - new Date(b.movie.release_date);
             case'primary_release_date.desc':
@@ -100,8 +100,9 @@ app.post('/api/movie-in-range-recherche', async (req, res) => {
                 return a.movie.popularity - b.movie.popularity ;
         }
     }
+    movies.sort((a, b) => customSort(a, b, sort));
 
-    movies.sort(customSort);
+    // movies.sort(customSort);
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
     const paginatedMovies = movies.slice(startIndex, endIndex); // Sélectionner les films pour la page actuelle
@@ -134,7 +135,6 @@ app.post('/api/movie-in-range', async (req, res) => {
     const locationUser = req.body.location;
     const range = req.body.range;
     const sort = req.body.sort;
-    console.log(sort);
     const genre = req.body.genre || [];
     let genreIdsSplitted = [];
     if(genre.length > 0) {
@@ -143,17 +143,17 @@ app.post('/api/movie-in-range', async (req, res) => {
             genreIdsSplitted[i] = parseInt(genreIdsSplitted[i]);
         }
     }
+
     const page = parseInt(req.body.page) || 1; // Récupérer le numéro de page, par défaut 1
     const pageSize =  20; // Récupérer la taille de la page, par défaut 20
     const collection = db.collection('cinema');
     const cinema = await collection.find({}).toArray();
     const cinemas = filterCinemasByDistance({ lat: parseFloat(locationUser.latitude), lon: parseFloat(locationUser.longitude) }, cinema, range);
     const movies = [];
-
     for (const cinema of cinemas) {
         for (const movie of cinema.movies) {
             if (genreIdsSplitted.length > 0) {
-                if (movie.genre_ids.some(id => genreIdsSplitted.includes(id))) {
+                if (movie.genre_ids.every(id => genreIdsSplitted.includes(id))) {
                     const movieWithCinemaInfo = {
                         cinema: {
                             _id: cinema._id,
@@ -176,15 +176,15 @@ app.post('/api/movie-in-range', async (req, res) => {
         }
     }
 
-    function customSort(a, b) {
-        console.log(sort);
+    function customSort(a, b, sort) {
+        // console.log(sort);
         switch (sort) {
             case 'vote_average.desc':
-                return  a.movie.vote_average - b.movie.vote_average;
+                return  Math.round(b.movie.vote_average) - Math.round(a.movie.vote_average);
             case 'title.asc':
-                return b.movie.title - a.movie.title;
+                return a.movie.title.localeCompare(b.movie.title);
             case 'title.desc':
-                return a.movie.title - b.movie.title;
+                return b.movie.title.localeCompare(a.movie.title);
             case 'release_date.asc':
                 return new Date(a.movie.release_date) - new Date(b.movie.release_date);
             case'primary_release_date.desc':
@@ -193,8 +193,7 @@ app.post('/api/movie-in-range', async (req, res) => {
                 return a.movie.popularity - b.movie.popularity ;
         }
     }
-
-    movies.sort(customSort);
+    movies.sort((a, b) => customSort(a, b, sort));
     const startIndex = (page - 1) * pageSize;
     const endIndex = page * pageSize;
 
@@ -327,7 +326,6 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
                     }
             }
             await collection.updateOne({ _id: cinemas[index]._id }, { $set: { movies: randomMovies } });
-            // console.log(cinemas[index]);
         }
 
         res.status(200).send('Movies associated with cinemas successfully !');
@@ -338,5 +336,5 @@ app.get('/associate-movies-to-cinemas', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Server is running at localhost:${port} `);
 });

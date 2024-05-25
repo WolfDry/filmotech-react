@@ -6,11 +6,11 @@ import { useEffect, useState } from "react";
 interface Imovie {
   movie: Movie
 }
-const CardMovie = ({ movie }: Imovie,) => {
-  const [reviews, setReviews] = useState([])
 
+const CardMovie = ({ movie } : Imovie, ) => {
+  const [reviews, setReviews] = useState([])
   const getReviews = () => {
-    fetch(`http://localhost:3000/api/comment/get/${movie.external_id}`)
+    fetch(`${import.meta.env.VITE_END_POINT_API}/api/comment/get/${movie.external_id}`)
       .then(response => response.json())
       .then(data => setReviews(data.reverse()))
   }
