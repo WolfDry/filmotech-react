@@ -1,8 +1,8 @@
-import {useEffect, useState} from 'react'
-import {StarIcon,SpeakerWaveIcon, SpeakerXMarkIcon} from '@heroicons/react/20/solid'
-import {useParams} from 'react-router-dom';
-import {getMovieById} from "../api/tmdb.tsx";
-import {Movie} from "../interface/Movie.tsx";
+import { useEffect, useState } from 'react'
+import { StarIcon, SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/20/solid'
+import { useParams } from 'react-router-dom';
+import { getMovieById } from "../api/tmdb.tsx";
+import { Movie } from "../interface/Movie.tsx";
 import Review from "../Components/Reviews.tsx";
 import noImage from '/no-image.jpg';
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
@@ -12,7 +12,7 @@ import { Carousel } from 'react-responsive-carousel';
 export default function MovieOnly() {
 
   const [onSpeak, setOnSpeak] = useState<boolean>(false);
-  const handleSpeak = (text:string) => {
+  const handleSpeak = (text: string) => {
     setOnSpeak(!onSpeak);
 
     if ('speechSynthesis' in window) {
@@ -32,10 +32,10 @@ export default function MovieOnly() {
   };
   const [movie, setMovie] = useState<Movie | null>(null);
   const [cinemas, setCinemas] = useState([]);
-  const {id} = useParams();
+  const { id } = useParams();
   const [reviews, setReviews] = useState([])
 
-  const getReviews = (data:string) => {
+  const getReviews = (data: string) => {
     fetch(`${import.meta.env.VITE_END_POINT_API}/api/comment/get/${data}`)
       .then(response => response.json())
       .then(data => setReviews(data.reverse()))
@@ -53,13 +53,14 @@ export default function MovieOnly() {
     }).catch(err => console.error(err));
 
 
-}, [id]);
+  }, [id]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   async function getCinemaName(id: string) {
     const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/cinema-of-movie/${id}`);
     const data = await response.json();
-    setCinemas(data);}
+    setCinemas(data);
+  }
 
 
   function formateDate(dateString: string) {
@@ -88,9 +89,9 @@ export default function MovieOnly() {
                 <div className=" flex justify-center">
                   {movie.poster_path == null ?
                     <img src={noImage} alt={movie.title}
-                         className=" img-movie object-cover object-center"/> :
+                      className=" img-movie object-cover object-center" /> :
                     <img src={`https://image.tmdb.org/t/p/original${movie.poster_path}`} alt={movie.title}
-                         className=" img-movie object-cover object-center"/>
+                      className=" img-movie object-cover object-center" />
                   }
 
                 </div>
@@ -131,10 +132,10 @@ export default function MovieOnly() {
                             {isHalfFilled && (
                               <div
                                 className="absolute top-0 left-0 w-1/2 h-full overflow-hidden"
-                                style={{clip: 'rect(0, 1em, 1.2em, 0)'}}
+                                style={{ clip: 'rect(0, 1em, 1.2em, 0)' }}
 
                               >
-                                <StarIcon className="h-5 w-5 text-yellow-400" aria-hidden="true"/>
+                                <StarIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
                               </div>
                             )}
                           </div>
@@ -153,11 +154,11 @@ export default function MovieOnly() {
                         <><SpeakerWaveIcon onClick={() => {
                           handleSpeak(movie?.overview)
                         }} color={"orange"} height={35} width={35}
-                                           className="border-solid cursor-pointer transition duration-100 border-orange-500 hover:text-[#252525] hover:border-[#252525] text-orange-500 border-[1px] p-2 rounded-full"/></> :
+                          className="border-solid cursor-pointer transition duration-100 border-orange-500 hover:text-[#252525] hover:border-[#252525] text-orange-500 border-[1px] p-2 rounded-full" /></> :
                         <><SpeakerXMarkIcon onClick={() => {
                           handleSpeak(movie?.overview)
                         }} color={"#252525"} height={35} width={35}
-                                            className="border-solid hover:text-orange-500 hover:border-orange-500 transition duration-100 cursor-pointer border-[#252525] border-[1px] p-2 rounded-full"/></>
+                          className="border-solid hover:text-orange-500 hover:border-orange-500 transition duration-100 cursor-pointer border-[#252525] border-[1px] p-2 rounded-full" /></>
                       }
                     </div>
                   </>
@@ -170,25 +171,25 @@ export default function MovieOnly() {
                       <ul role="list">
                         {movie.genres.map((genre) => (
                           <span key={genre.id}
-                                className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
-                       {genre.name}</span>
+                            className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
+                            {genre.name}</span>
                         ))}
                       </ul>
                     </div>
                   }
                 </div>
-                {movie.genres.length < 1 ? "" :<div className="hidden mt-10 border-t border-gray-200 pt-10">
+                {movie.genres.length < 1 ? "" : <div className="hidden mt-10 border-t border-gray-200 pt-10">
                   <h3 className="text-lg font-medium text-gray-900">Cinémas</h3>
-                    <div className="prose prose-sm mt-4 text-gray-500">
-                      <ul role="list">
-                        {movie.genres.map((cinema) => (
-                          <span key={cinema.id}
-                                className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
-                       {cinema.name}</span>
-                        ))}
-                      </ul>
-                    </div>
-                </div> }
+                  <div className="prose prose-sm mt-4 text-gray-500">
+                    <ul role="list">
+                      {movie.genres.map((cinema) => (
+                        <span key={cinema.id}
+                          className="text-xs ml-2 text-gray-800 border border-gray-600 rounded-full px-2 py-1 hover:bg-gray-800 hover:text-gray-50 hover:border-gray-50 transition ">
+                          {cinema.name}</span>
+                      ))}
+                    </ul>
+                  </div>
+                </div>}
 
               </div>
 
@@ -200,7 +201,7 @@ export default function MovieOnly() {
               showStatus={false}
               showIndicators={false}
             >
-              {cinemas.map((cinema :{name:string,adress:string,city:string,pc:string}) => (
+              {cinemas.map((cinema: { name: string, adress: string, city: string, pc: string }) => (
                 <div className=" pt-3">
                   <p className="text-lg font-bold text-gray-900">{cinema.name}</p>
                   <p className="text-sm text-gray-500">{cinema.adress},</p>
@@ -220,10 +221,10 @@ export default function MovieOnly() {
                         <div key={prod.name} className="flex justify-center">
                           {prod.logo_path == null ? <p> {prod.name}</p> :
                             <img src={`https://image.tmdb.org/t/p/original${prod.logo_path}`} alt={prod.logo_path}
-                                 className=" h-12 object-cover prod-movie object-center my-2"/>}
+                              className=" h-12 object-cover prod-movie object-center my-2" />}
 
-                          </div>
-                        )
+                        </div>
+                      )
                       )
                       }
                     </>
@@ -232,7 +233,7 @@ export default function MovieOnly() {
                 </div>
               </div>
             </div>
-            <Review movie={movie}/>
+            <Review movie={movie} />
 
           </div>
         </div>
