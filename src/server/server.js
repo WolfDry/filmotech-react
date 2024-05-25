@@ -153,7 +153,7 @@ app.post('/api/movie-in-range', async (req, res) => {
     for (const cinema of cinemas) {
         for (const movie of cinema.movies) {
             if (genreIdsSplitted.length > 0) {
-                if (movie.genre_ids.some(id => genreIdsSplitted.includes(id))) {
+                if (movie.genre_ids.every(id => genreIdsSplitted.includes(id))) {
                     const movieWithCinemaInfo = {
                         cinema: {
                             _id: cinema._id,
