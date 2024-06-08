@@ -80,13 +80,47 @@ button:focus-visible {
     display: flex;
     justify-content: center;
     margin: 0 auto;
-    padding: 2rem;
+
     text-align: center;
 }
 
-@media screen and (max-width: 768px) {
-    #root {
-        padding: .2rem;
+@media screen and (max-width: 468px) {
+    .root {
+        padding: .5rem;
+    }
+}
+.trailer{
+    aspect-ratio: 16/9;
+}
+.scroll_distribution {
+    overflow-x: auto; /* Activer la barre de défilement horizontale */
+    overflow-y: hidden; /* Masquer la barre de défilement verticale */
+}
+
+.scroll_distribution::-webkit-scrollbar {
+    height: 8px; /* Taille de la barre de défilement horizontale */
+    width: 0; /* Masquer la barre de défilement verticale */
+    background-color: #f5f5f5;
+    scrollbar-width: thin;
+    border-radius: 8px;
+}
+
+.scroll_distribution::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(255, 165, 0, 0.44);
+    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+/* Masquer complètement la barre de défilement verticale */
+
+
+
+.ratio{
+    aspect-ratio: 2/3;
+}
+@media screen and (min-width: 469px) {
+    .root {
+        padding: 2rem;
     }
 }
 

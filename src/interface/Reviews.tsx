@@ -4,6 +4,6 @@ export type Review = {
     name: string,
     comment: string,
     rating: number,
-    movieId: Number,
+    movieId: number,
     movieImdb: string,
 }
