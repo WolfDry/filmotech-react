@@ -16,6 +16,13 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+.offline-banner{
+    position: fixed;
+    top: 0;
+    width: 90%;
+    background-color: red;    
+}
+
 a {
     font-weight: 500;
     color: #f3d746;

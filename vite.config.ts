@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { generateSW } from 'workbox-build';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -35,3 +36,33 @@ export default defineConfig({
     })
   ],
 })
+
+// Plugin Workbox pour Vite
+const workboxPlugin = () => ({
+  name: 'workbox-plugin',
+  closeBundle: async () => {
+    await generateSW({
+      globDirectory: 'dist',
+      globPatterns: ['**/*.{html,js,css,png,jpg}'],
+      swDest: 'dist/sw.js',
+      clientsClaim: true,
+      skipWaiting: true,
+      runtimeCaching: [
+        {
+          urlPattern: ({ url }) => url.origin === 'https://filmotech-react.vercel.app/',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'api-cache',
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 24 * 60 * 60, // 1 jour
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
+    });
+  },
+});
