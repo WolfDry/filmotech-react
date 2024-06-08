@@ -9,6 +9,8 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a lo
 import {Actor} from "../interface/Actor.tsx";
 import ReactPlayer from 'react-player/lazy'
 import {Trailer} from "../interface/Tailer.tsx";
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 
 export default function MovieOnly() {
 
@@ -280,7 +282,8 @@ export default function MovieOnly() {
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h3 className="text-lg font-medium text-gray-900">Disponible dans les Cinemas </h3>
               <div className="prose prose-sm mt-4 text-gray-500 ">
-                <div role="list" className="flex scroll_distribution justify-center">
+                <SimpleBar  autoHide={false} color={"#fbd000"}>
+                <div  className="flex sm:justify-center justify-start">
                   {cinemas.length < 1 ? <p> Aucune information sur la production</p> :
                     <>
                       {cinemas.map((cinema: { name: string, adress: string, city: string, pc: string }) => (
@@ -296,12 +299,14 @@ export default function MovieOnly() {
                     </>
                   }
                 </div>
+                </SimpleBar>
               </div>
             </div>
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h3 className="text-lg font-medium text-gray-900">Production </h3>
               <div className="prose prose-sm mt-4 text-gray-500 ">
-              <div role="list" className="flex scroll_distribution justify-center ">
+                <SimpleBar  autoHide={false} color={"#fbd000"}>
+              <div role="list" className="flex justify-center">
                   {movie.production_companies.length < 1 ? <p> Aucune information sur la production</p> :
                     <>
                       {movie.production_companies.map((prod) => (
@@ -314,12 +319,14 @@ export default function MovieOnly() {
                     </>
                   }
                 </div>
+                </SimpleBar>
               </div>
             </div>
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h3 className="text-lg font-medium text-gray-900">Distribution </h3>
-              <div className="prose prose-sm mt-4 text-gray-500  scroll_distribution">
-                <div role="list" className="flex scroll_distribution  ">
+              <div className="prose prose-sm mt-4 text-gray-500">
+                <SimpleBar  autoHide={false} >
+                <div  className="flex ">
                   {actors.length < 1 ? <p> Aucun</p> :
                     <>
                     {actors.sort((a: Actor, b: Actor) => b.popularity - a.popularity).map((actor: Actor) => (
@@ -330,14 +337,14 @@ export default function MovieOnly() {
                                    alt={actor.profile_path}
                                    className=" w-full object-cover ratio  prod-movie rounded-lg object-center my-2"/>
                               <p className="text-center font-bold">{actor.name}</p>
-                              <p className="text-center">Dans {actor.character}</p>
+                              <p className="text-center">Dans :  {actor.character}</p>
                             </div>
                             : <div className="  py-8 flex flex-col items-center w-[200px] mx-5">
                               <img src={`https://image.tmdb.org/t/p/original${actor.profile_path}`}
                                    alt={actor.profile_path}
                                    className=" w-full object-cover prod-movie rounded-lg object-center my-2"/>
                               <p className="text-center font-bold">{actor.name}</p>
-                              <p className="text-center">Dans {actor.character}</p>
+                              <p className="text-center">Dans :  {actor.character}</p>
                             </div>
                           }
                         </div>
@@ -345,6 +352,7 @@ export default function MovieOnly() {
                     </>
                   }
                 </div>
+                </SimpleBar>
               </div>
             </div>
             <Review movie={movie}/>

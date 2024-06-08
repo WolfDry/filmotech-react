@@ -2,7 +2,7 @@ import express from 'express';
 import { MongoClient } from 'mongodb';
 import bodyParser from 'body-parser';
 import cors from 'cors'
-import translate from "@iamtraction/google-translate";
+import translate, {Translator} from 'google-translate-api-x';
 
 const app = express();
 const port = 3000;
@@ -131,15 +131,9 @@ app.get('/api/cinema/get', async (req, res) => {
 });
 
 app.post('/api/translate', async (req, res) => {
-    const text = req.body.text;
-    const target = req.body.target;
-    try {
-        const translatedText = await translate(text, { to: target });
-        res.status(200).json({ text: translatedText });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to translate text' });
-    }
+    const { text, target } = req.body;
+    const result = await translate(text, {to: target});
+    res.json(result);
 });
 
 

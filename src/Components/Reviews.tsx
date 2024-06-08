@@ -35,7 +35,7 @@ const Reviews = ({ movie }: Imovie) => {
     .then(response => response.json())
     .then(data => {
         // setReviews(data.reverse())
-      for (let i = 0; i <= page; i++) {
+      for (let i = 1; i <= page; i++) {
         getReviewsFromAPITMDB(data.reverse(),movie.id.toString(), i);
       }
       }
@@ -168,7 +168,7 @@ const Reviews = ({ movie }: Imovie) => {
       const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/translate`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ text, target })
       });
@@ -178,7 +178,7 @@ const Reviews = ({ movie }: Imovie) => {
 
       const reviewToUpdate = reviews.find(review => review.id === reviewId);
       if (reviewToUpdate) {
-        reviewToUpdate.comment = data.text.text;
+        reviewToUpdate.comment = data.text;
       }
     } catch (err) {
       console.error('Error:', err);

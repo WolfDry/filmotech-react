@@ -111,6 +111,13 @@ button:focus-visible {
     -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
 }
 
+@media only screen and (max-width: 768px) {
+    .scroll_distribution::-webkit-scrollbar {
+        visibility: visible; /* Masquer la barre de défilement sur les appareils mobiles */
+        width: 8px; /* Largeur de la barre de défilement sur les appareils mobiles */
+    }
+}
+
 /* Masquer complètement la barre de défilement verticale */
 
 
