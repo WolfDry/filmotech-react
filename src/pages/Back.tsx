@@ -3,26 +3,26 @@ import { insertCinema } from "../api/tmdb"
 
 function Back() {
 
-  const [nom, setNom] = useState('')
-  const [adresse, setAdresse] = useState('')
-  const [cp, setCp] = useState('')
-  const [ville, setVille] = useState('')
+  const [name, setName] = useState('')
+  const [adress, setAdress] = useState('')
+  const [pc, setPc] = useState('')
+  const [city, setCity] = useState('')
   const [screens, setScreens] = useState('')
   const [seat, setSeat] = useState('')
-  const [lat, setLat] = useState('')
-  const [long, setLong] = useState('')
+  const [latitude, setLat] = useState('')
+  const [longitude, setLong] = useState('')
 
   const handleInsertCinema = () => {
 
     const cinemaData = {
-      nom,
-      adresse,
-      cp,
-      ville,
+      name,
+      adress,
+      pc,
+      city,
       screens,
       seat,
-      lat,
-      long
+      latitude,
+      longitude
     }
 
     console.log(cinemaData)
@@ -56,7 +56,7 @@ function Back() {
                         id="name"
                         className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                         placeholder="Pathé Bellecour"
-                        onChange={(e) => setNom(e.target.value)}
+                        onChange={(e) => setName(e.target.value)}
                       />
                     </div>
                   </div>
@@ -74,7 +74,7 @@ function Back() {
                         id="name"
                         className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                         placeholder="123 rue du boulevard"
-                        onChange={(e) => setAdresse(e.target.value)}
+                        onChange={(e) => setAdress(e.target.value)}
                       />
                     </div>
                   </div>
@@ -92,7 +92,7 @@ function Back() {
                         id="name"
                         className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                         placeholder="69003"
-                        onChange={(e) => setCp(e.target.value)}
+                        onChange={(e) => setPc(e.target.value)}
                       />
                     </div>
                   </div>
@@ -112,7 +112,7 @@ function Back() {
                         id="name"
                         className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 bg-white shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-400 sm:text-sm sm:leading-6"
                         placeholder="Lyon"
-                        onChange={(e) => setVille(e.target.value)}
+                        onChange={(e) => setCity(e.target.value)}
                       />
                     </div>
                   </div>
