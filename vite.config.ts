@@ -15,7 +15,8 @@ export default defineConfig({
       injectRegister: 'auto',
       workbox: {
         navigateFallback: '/index.html',
-        globPatterns: ['**/*.{js,css,html,png,svg,json}']
+        globPatterns: ['**/*.{js,css,html,png,svg,json}'],
+        cleanupOutdatedCaches: true
       },
       manifest: {
         name: "PWA",

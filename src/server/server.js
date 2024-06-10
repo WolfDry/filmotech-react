@@ -241,12 +241,12 @@ function filterCinemasByDistance(userLocation, cinemas, maxDistance) {
         return distance <= maxDistance;
     });
 }
-// Example route to fetch data from MongoDB
-app.post('/api/cinema/insert', async (req, res) => {
+
+app.post('/api/cinema', async (req, res) => {
     try {
         const db = client.db();
         const collection = db.collection('cinema');
-        const data = req.body; // Assuming data is sent as JSON in the request body
+        const data = req.body;
         const result = await collection.insertOne(data);
         res.json({ message: `${result.insertedCount} documents inserted` });
     } catch (error) {

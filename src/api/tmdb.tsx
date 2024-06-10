@@ -1,6 +1,6 @@
 // import dotenv from 'dotenv';
 // dotenv.config();
-export const get = async (page: number = 1,sort:string,genre:string) => {
+export const get = async (page: number = 1, sort: string, genre: string) => {
   const options = {
     method: 'GET',
     headers: {
@@ -27,12 +27,12 @@ export const get = async (page: number = 1,sort:string,genre:string) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         const genreNames = movie.genre_ids.map(genreId => genreMap.get(genreId));
-        return {...movie, genre_names: genreNames, external_id: extIdData.imdb_id};
+        return { ...movie, genre_names: genreNames, external_id: extIdData.imdb_id };
       } catch (err) {
         console.error(err);
       }
     }));
-    return { movies: Mov, totalPages};
+    return { movies: Mov, totalPages };
   } catch (error) {
     console.error('Error fetching data:', error);
   }
@@ -59,14 +59,14 @@ export const getMovieById = async (id: string) => {
     throw err;
   }
 };
-export const getMovieByLocationAndRange = async (locationUser: { latitude: string, longitude: string }, range: number,page:number,genre : null|string,sort:string) => {
+export const getMovieByLocationAndRange = async (locationUser: { latitude: string, longitude: string }, range: number, page: number, genre: null | string, sort: string) => {
   const options = {
     method: 'POST',
     headers: {
       accept: 'application',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ location: locationUser, range: range,page:page, genre:genre,sort: sort })
+    body: JSON.stringify({ location: locationUser, range: range, page: page, genre: genre, sort: sort })
   };
   try {
     const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/movie-in-range`, options);
@@ -81,14 +81,14 @@ export const getMovieByLocationAndRange = async (locationUser: { latitude: strin
   }
 }
 
-export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitude: string, longitude: string }, range: number,page:number,query:null|string,genre :null|string,sort:string) => {
+export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitude: string, longitude: string }, range: number, page: number, query: null | string, genre: null | string, sort: string) => {
   const options = {
     method: 'POST',
     headers: {
       accept: 'application',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ location: locationUser, range: range,page:page,query:query,genre:genre,sort:sort })
+    body: JSON.stringify({ location: locationUser, range: range, page: page, query: query, genre: genre, sort: sort })
   };
   try {
     console.log(sort)
@@ -101,7 +101,7 @@ export const getMovieByLocationAndRangeAndQuery = async (locationUser: { latitud
   }
 };
 
-export const getMovieByTitle = async (title: string, page: number = 1, sort:string) => {
+export const getMovieByTitle = async (title: string, page: number = 1, sort: string) => {
   const options = {
     method: 'GET',
     headers: {
@@ -129,7 +129,7 @@ export const getMovieByTitle = async (title: string, page: number = 1, sort:stri
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         const genreNames = movie.genre_ids.map(genreId => genreMap.get(genreId));
-        return {...movie, genre_names: genreNames, external_id: extIdData.imdb_id, };
+        return { ...movie, genre_names: genreNames, external_id: extIdData.imdb_id, };
       } catch (err) {
         console.error(err);
       }
@@ -148,12 +148,37 @@ export const getGenre = async () => {
       Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3OWVlMWUwZjFjMGQwMDZiMTgxYzg1N2JhZmU3Mzc1ZCIsInN1YiI6IjY1YzNlNGI1YzE1Zjg5MDE3Y2Y2MmViYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Xy9rJg2eK6R1tJBw9PJXxsrhsOz5JijdYarcch9rtJ0'
     }
   };
-try {
-  const response = await fetch('https://api.themoviedb.org/3/genre/movie/list?language=fr-FR', options);
-  const genreData = await response.json();
-  return genreData;
-} catch (err) {
-  console.error(err);
-  throw err;
+  try {
+    const response = await fetch('https://api.themoviedb.org/3/genre/movie/list?language=fr-FR', options);
+    const genreData = await response.json();
+    return genreData;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 }
+
+export const insertCinema = async (data: Object) => {
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3OWVlMWUwZjFjMGQwMDZiMTgxYzg1N2JhZmU3Mzc1ZCIsInN1YiI6IjY1YzNlNGI1YzE1Zjg5MDE3Y2Y2MmViYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Xy9rJg2eK6R1tJBw9PJXxsrhsOz5JijdYarcch9rtJ0'
+    },
+    body: JSON.stringify(data)
+  }
+  console.log(JSON.stringify(data))
+  try {
+    const response = await fetch(`${import.meta.env.VITE_END_POINT_API}/api/cinema`, options)
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    console.log('insert OK')
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
