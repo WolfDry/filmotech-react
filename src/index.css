@@ -17,10 +17,12 @@
 }
 
 .offline-banner{
-    position: fixed;
-    top: 0;
-    width: 90%;
-    background-color: red;    
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 30%;
+    text-align: center;
+    font-size: larger;
 }
 
 a {
